@@ -1,14 +1,14 @@
 import threading
 
 
-class EventSystem:
+class EventsSystem:
     _instance = None
     _lock = threading.Lock()
 
     def __init__(self):
-        if not EventSystem._instance:
+        if not EventsSystem._instance:
             self.subscribers = {}
-            EventSystem._instance = self
+            EventsSystem._instance = self
             print(f"__init__ id: {id(self._instance)}")
 
     @classmethod

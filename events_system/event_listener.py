@@ -1,5 +1,5 @@
 from abc import ABC
-from event_system.event_system import EventSystem
+from events_system.events_system import EventsSystem
 
 
 class EventListener(ABC):
@@ -8,4 +8,4 @@ class EventListener(ABC):
 
     def setup_event_handlers(self, **kwargs):
         for event_type, function in kwargs.items():
-            EventSystem.subscribe(event_type, function)
+            EventsSystem.subscribe(event_type, function)
