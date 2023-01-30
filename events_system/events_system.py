@@ -28,6 +28,16 @@ class EventsSystem:
 
     @classmethod
     def post(cls, event_type, event_data):
+        """
+        Post an event to all subscribers of a specified event type.
+        
+        Raises:
+            Exception: If an instance of EventsSystem has not been initialized. 
+            Note: This happens, if post() is being called before subscribe() has been called, which leads the instance of EventsSystem being None. 
+        """
+        if cls._instance is None:
+            raise Exception("An instance of EventsSystem needs to be initialized before posting events.")
+
         if event_type in cls._instance.subscribers:
             for fn in cls._instance.subscribers[event_type]:
                 fn(event_data)

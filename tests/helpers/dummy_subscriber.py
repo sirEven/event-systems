@@ -21,7 +21,8 @@ class DummySubscriber_one(DummyEmitterListener):
         self.setup_DummyEmitter_event_handlers(self.handle_DummyEmitter_event_emitted_event)
 
     def handle_DummyEmitter_event_emitted_event(self, event_data=None):
-        print(f"{type(self).__name__} - event handeled {event_data}")
+        text = "- event handeled"
+        print_post_output(self, text, event_data)
     
     def setup_DummyEmitter_event_handlers(self, event_emitted_handler=None):
         return super().setup_DummyEmitter_event_handlers(event_emitted_handler)
@@ -31,10 +32,20 @@ class DummySubscriber_two(DummyEmitterListener):
         self.setup_DummyEmitter_event_handlers(self.handle_DummyEmitter_event_emitted_event, self.handle_DummyEmitter_another_event_emitted_event)
 
     def handle_DummyEmitter_event_emitted_event(self, event_data=None):
-        print(f"{type(self).__name__} - event handeled {event_data}")
+        text = "- event handeled"
+        print_post_output(self, text, event_data)
     
     def handle_DummyEmitter_another_event_emitted_event(self, event_data=None):
-        print(f"{type(self).__name__} - another event handeled {event_data}")
+        text = "- another event handeled"
+        print_post_output(self, text, event_data)
+
     
     def setup_DummyEmitter_event_handlers(self, event_emitted_handler=None, another_event_emitted_handler=None):
         return super().setup_DummyEmitter_event_handlers(event_emitted_handler, another_event_emitted_handler)
+
+def print_post_output(emitter, text:str, event_data):
+    none_text = f"{type(emitter).__name__} {text}"
+    if not event_data:
+        print(none_text)
+    else: 
+        print(none_text + " " + event_data)
