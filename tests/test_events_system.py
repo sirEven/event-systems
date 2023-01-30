@@ -7,7 +7,7 @@ def test_events_system_not_subscribing_results_in_Eventsystem_not_initialized():
     # given 
     emitter = DummyEmitter()
     
-    # when
+    # when test
     subscriber = DummySubscriber_not_subscribing()
 
     # then
