@@ -137,7 +137,7 @@ def test_events_system_post_raises_exception_if_not_initialized_beforehand(capsy
 
     # then
     out, err = capsys.readouterr()
-    expected = "An instance of EventsSystem needs to be initialized before posting events.\n"
+    expected = "At least one subscription needs to be registered before posting events.\n"
     assert expected == out
 
     # clean up

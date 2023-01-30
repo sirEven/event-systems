@@ -33,10 +33,10 @@ class EventsSystem:
         
         Raises:
             Exception: If an instance of EventsSystem has not been initialized. 
-            Note: This happens, if post() is being called before subscribe() has been called, which leads the instance of EventsSystem being None. 
+            Note: This happens, if post() is being called before subscribe() has not been called at least once, which leads to the instance of EventsSystem being None. 
         """
         if cls._instance is None:
-            raise Exception("An instance of EventsSystem needs to be initialized before posting events.")
+            raise Exception("At least one subscription needs to be registered before posting events.")
 
         if event_type in cls._instance.subscribers:
             for fn in cls._instance.subscribers[event_type]:
