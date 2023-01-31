@@ -1,12 +1,17 @@
 from events_system.events_system import EventsSystem
 from tests.helpers.dummy_emitter import DummyEmitter
-from tests.helpers.dummy_subscriber import DummySubscriber_not_subscribing, DummySubscriber_zero, DummySubscriber_one, DummySubscriber_two
+from tests.helpers.dummy_subscriber import (
+    DummySubscriber_not_subscribing,
+    DummySubscriber_zero,
+    DummySubscriber_one,
+    DummySubscriber_two,
+)
 
 
 def test_events_system_not_subscribing_results_in_Eventsystem_not_initialized():
-    # given 
+    # given
     emitter = DummyEmitter()
-    
+
     # when test
     subscriber = DummySubscriber_not_subscribing()
 
@@ -16,10 +21,11 @@ def test_events_system_not_subscribing_results_in_Eventsystem_not_initialized():
     # clean up
     EventsSystem._instance = None
 
+
 def test_events_system_subscribe_zero_subscription_results_in_zero_entries():
-    # given 
+    # given
     emitter = DummyEmitter()
-    
+
     # when
     subscriber = DummySubscriber_zero()
 
@@ -29,10 +35,11 @@ def test_events_system_subscribe_zero_subscription_results_in_zero_entries():
     # clean up
     EventsSystem._instance = None
 
+
 def test_events_system_subscribe_one_subscription_results_in_one_entry():
-    # given 
+    # given
     emitter = DummyEmitter()
-    
+
     # when
     subscriber = DummySubscriber_one()
 
@@ -42,10 +49,11 @@ def test_events_system_subscribe_one_subscription_results_in_one_entry():
     # clean up
     EventsSystem._instance = None
 
+
 def test_events_system_subscribe_two_subscriptions_results_in_two_entries():
-    # given 
+    # given
     emitter = DummyEmitter()
-    
+
     # when
     subscriber = DummySubscriber_two()
 
@@ -55,8 +63,9 @@ def test_events_system_subscribe_two_subscriptions_results_in_two_entries():
     # clean up
     EventsSystem._instance = None
 
+
 def test_events_system_post_zero_subscriptions_results_in_zero_events_handled(capsys):
-    # given 
+    # given
     emitter = DummyEmitter()
     subscriber = DummySubscriber_zero()
 
@@ -71,8 +80,9 @@ def test_events_system_post_zero_subscriptions_results_in_zero_events_handled(ca
     # clean up
     EventsSystem._instance = None
 
+
 def test_events_system_post_one_subscription_results_in_one_event_handled(capsys):
-    # given 
+    # given
     emitter = DummyEmitter()
     subscriber = DummySubscriber_one()
 
@@ -89,7 +99,7 @@ def test_events_system_post_one_subscription_results_in_one_event_handled(capsys
 
 
 def test_events_system_post_two_subscriptions_results_in_two_events_handled(capsys):
-    # given 
+    # given
     emitter = DummyEmitter()
     subscriber = DummySubscriber_two()
 
@@ -106,8 +116,11 @@ def test_events_system_post_two_subscriptions_results_in_two_events_handled(caps
     # clean up
     EventsSystem._instance = None
 
-def test_events_system_post_with_event_data_one_subscription_results_in_one_event_handled_with_event_data(capsys):
-    # given 
+
+def test_events_system_post_with_event_data_one_subscription_results_in_one_event_handled_with_event_data(
+    capsys,
+):
+    # given
     emitter = DummyEmitter()
     subscriber = DummySubscriber_one()
 
@@ -122,20 +135,22 @@ def test_events_system_post_with_event_data_one_subscription_results_in_one_even
     # clean up
     EventsSystem._instance = None
 
+
 def test_events_system_post_raises_exception_if_not_initialized_beforehand(capsys):
-    # given 
+    # given
     emitter = DummyEmitter()
 
     # when
-    try: 
+    try:
         emitter.emit_event()
     except Exception as e:
         print(e)
 
-
     # then
     out, err = capsys.readouterr()
-    expected = "At least one subscription needs to be registered before posting events.\n"
+    expected = (
+        "At least one subscription needs to be registered before posting events.\n"
+    )
     assert out == expected
 
     # clean up

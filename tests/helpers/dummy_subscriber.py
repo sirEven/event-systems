@@ -10,7 +10,6 @@ class DummySubscriber_not_subscribing(DummyEmitterListener):
 
 class DummySubscriber_zero(DummyEmitterListener):
     def __init__(self):
-        pass
         self.setup_DummyEmitter_event_handlers(None)
     
     def setup_DummyEmitter_event_handlers(self, event_emitted_handler=None):
