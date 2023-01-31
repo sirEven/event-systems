@@ -66,7 +66,7 @@ def test_events_system_post_zero_subscriptions_results_in_zero_events_handled(ca
     # then
     out, err = capsys.readouterr()
     expected = ""
-    assert expected in out
+    assert expected == out
 
     # clean up
     EventsSystem._instance = None
@@ -99,11 +99,9 @@ def test_events_system_post_two_subscriptions_results_in_two_events_handled(caps
 
     # then
     out, err = capsys.readouterr()
-    expected = "DummySubscriber_two - event handeled"
-    assert expected in out
-
-    expected = "DummySubscriber_two - another event handeled"
-    assert expected in out
+    expected_1 = "DummySubscriber_two - event handeled\n"
+    expected_2 = "DummySubscriber_two - another event handeled\n"
+    assert out == expected_1 + expected_2
 
     # clean up
     EventsSystem._instance = None
@@ -119,7 +117,7 @@ def test_events_system_post_with_event_data_one_subscription_results_in_one_even
     # then
     out, err = capsys.readouterr()
     expected = "DummySubscriber_one - event handeled some event data\n"
-    assert expected == out
+    assert out == expected
 
     # clean up
     EventsSystem._instance = None
@@ -138,7 +136,7 @@ def test_events_system_post_raises_exception_if_not_initialized_beforehand(capsy
     # then
     out, err = capsys.readouterr()
     expected = "At least one subscription needs to be registered before posting events.\n"
-    assert expected == out
+    assert out == expected
 
     # clean up
     EventsSystem._instance = None
