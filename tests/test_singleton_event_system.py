@@ -1,73 +1,58 @@
-from events_system.events_system import EventsSystem
+from singleton.event_system import EventSystem
 from tests.helpers.dummy_emitter import DummyEmitter
 from tests.helpers.dummy_subscriber import (
-    DummySubscriber_not_subscribing,
     DummySubscriber_zero,
     DummySubscriber_one,
     DummySubscriber_two,
 )
 
 
-def test_events_system_not_subscribing_results_in_Eventsystem_not_initialized():
-    # given
-    emitter = DummyEmitter()
-
-    # when test
-    subscriber = DummySubscriber_not_subscribing()
-
-    # then
-    assert EventsSystem._instance == None
-
-    # clean up
-    EventsSystem._instance = None
-
-
 def test_events_system_subscribe_zero_subscription_results_in_zero_entries():
     # given
-    emitter = DummyEmitter()
+    emitter = create_emitter()
 
     # when
-    subscriber = DummySubscriber_zero()
+    subscriber = DummySubscriber_zero(EventSystem)
 
     # then
-    assert len(EventsSystem._instance.subscribers) == 0
+    assert len(EventSystem._instance.subscribers) == 0
 
     # clean up
-    EventsSystem._instance = None
+    EventSystem._instance = None
 
 
 def test_events_system_subscribe_one_subscription_results_in_one_entry():
     # given
-    emitter = DummyEmitter()
+    emitter = create_emitter()
 
     # when
-    subscriber = DummySubscriber_one()
+    subscriber = DummySubscriber_one(EventSystem)
 
     # then
-    assert len(EventsSystem._instance.subscribers) == 1
+    assert len(EventSystem._instance.subscribers) == 1
 
     # clean up
-    EventsSystem._instance = None
+    EventSystem._instance = None
 
 
 def test_events_system_subscribe_two_subscriptions_results_in_two_entries():
     # given
-    emitter = DummyEmitter()
+    emitter = create_emitter()
 
     # when
-    subscriber = DummySubscriber_two()
+    subscriber = DummySubscriber_two(EventSystem)
 
     # then
-    assert len(EventsSystem._instance.subscribers) == 2
+    assert len(EventSystem._instance.subscribers) == 2
 
     # clean up
-    EventsSystem._instance = None
+    EventSystem._instance = None
 
 
 def test_events_system_post_zero_subscriptions_results_in_zero_events_handled(capsys):
     # given
-    emitter = DummyEmitter()
-    subscriber = DummySubscriber_zero()
+    emitter = create_emitter()
+    subscriber = DummySubscriber_zero(EventSystem)
 
     # when
     emitter.emit_event()
@@ -78,13 +63,13 @@ def test_events_system_post_zero_subscriptions_results_in_zero_events_handled(ca
     assert expected == out
 
     # clean up
-    EventsSystem._instance = None
+    EventSystem._instance = None
 
 
 def test_events_system_post_one_subscription_results_in_one_event_handled(capsys):
     # given
-    emitter = DummyEmitter()
-    subscriber = DummySubscriber_one()
+    emitter = create_emitter()
+    subscriber = DummySubscriber_one(EventSystem)
 
     # when
     emitter.emit_event()
@@ -95,13 +80,13 @@ def test_events_system_post_one_subscription_results_in_one_event_handled(capsys
     assert expected == out
 
     # clean up
-    EventsSystem._instance = None
+    EventSystem._instance = None
 
 
 def test_events_system_post_two_subscriptions_results_in_two_events_handled(capsys):
     # given
-    emitter = DummyEmitter()
-    subscriber = DummySubscriber_two()
+    emitter = create_emitter()
+    subscriber = DummySubscriber_two(EventSystem)
 
     # when
     emitter.emit_event()
@@ -114,15 +99,15 @@ def test_events_system_post_two_subscriptions_results_in_two_events_handled(caps
     assert out == expected_1 + expected_2
 
     # clean up
-    EventsSystem._instance = None
+    EventSystem._instance = None
 
 
 def test_events_system_post_with_event_data_one_subscription_results_in_one_event_handled_with_event_data(
     capsys,
 ):
     # given
-    emitter = DummyEmitter()
-    subscriber = DummySubscriber_one()
+    emitter = create_emitter()
+    subscriber = DummySubscriber_one(EventSystem)
 
     # when
     emitter.emit_event("some event data")
@@ -133,12 +118,12 @@ def test_events_system_post_with_event_data_one_subscription_results_in_one_even
     assert out == expected
 
     # clean up
-    EventsSystem._instance = None
+    EventSystem._instance = None
 
 
 def test_events_system_post_raises_exception_if_not_initialized_beforehand(capsys):
     # given
-    emitter = DummyEmitter()
+    emitter = create_emitter()
 
     # when
     try:
@@ -154,4 +139,7 @@ def test_events_system_post_raises_exception_if_not_initialized_beforehand(capsy
     assert out == expected
 
     # clean up
-    EventsSystem._instance = None
+    EventSystem._instance = None
+
+def create_emitter():
+    return DummyEmitter(EventSystem)

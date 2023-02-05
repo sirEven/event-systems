@@ -1,9 +1,9 @@
-from events_system.events_system import EventsSystem
-
-
 class DummyEmitter:
+    def __init__(self, event_system) -> None:
+        self.event_system = event_system
+
     def emit_event(self, event_data=None):
-        EventsSystem.post("DummyEmitter_event_emitted_event", event_data)
+        self.event_system.post("DummyEmitter_event_emitted_event", event_data)
 
     def emit_another_event(self, event_data=None):
-        EventsSystem.post("DummyEmitter_another_event_emitted_event", event_data)
+        self.event_system.post("DummyEmitter_another_event_emitted_event", event_data)

@@ -1,14 +1,14 @@
 import threading
 
 
-class EventsSystem:
+class EventSystem:
     _instance = None
     _lock = threading.Lock()
 
     def __init__(self):
-        if not EventsSystem._instance:
+        if not EventSystem._instance:
             self.subscribers = {}
-            EventsSystem._instance = self
+            EventSystem._instance = self
 
     @classmethod
     def initialize(cls):
@@ -18,7 +18,7 @@ class EventsSystem:
                 cls._instance = instance
 
     @classmethod
-    def subscribe(cls, event_type, fn):
+    def subscribe(cls, event_type: str, fn: callable):
         if not cls._instance:
             cls.initialize()
         if fn:
@@ -27,7 +27,7 @@ class EventsSystem:
             cls._instance.subscribers[event_type].append(fn)
 
     @classmethod
-    def post(cls, event_type, event_data):
+    def post(cls, event_type:str, event_data):
         """
         Post an event to all subscribers of a specified event type.
         
