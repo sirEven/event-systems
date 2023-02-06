@@ -11,16 +11,11 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Set up Python 3.8
-      uses: actions/setup-python@v2
+    - uses: actions/checkout@v3
+    - name: Set up Python
+      uses: actions/setup-python@v3
       with:
         python-version: 3.8
-    - name: Run Python commands
-      run: |
-        pip install --upgrade pip
-        python3.8 -m venv env
-        source env/bin/activate
-        echo "VIRTUAL ENV:" $VIRTUAL_ENV
     - name: Install dependencies
       run: |
         pip install -r requirements.txt
