@@ -25,9 +25,14 @@ jobs:
     - name: Run unit tests
       run: |
         python -m pytest tests/
+
+    - name: Build Python distribution
+      if: github.ref == 'refs/heads/release'
+      run: |
+        python3 -m build
+        
     - name: Publish a Python distribution to PyPI
       if: github.ref == 'refs/heads/release'
       uses: pypa/gh-action-pypi-publish@release/v1
       with:
-        TWINE_USERNAME: ${{ secrets.PYPI_USERNAME }}
-        TWINE_PASSWORD: ${{ secrets.PYPI_PASSWORD }}
+        password: ${{ secrets.PYPI_MAIN_TOKEN }}
