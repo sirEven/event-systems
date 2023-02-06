@@ -1,4 +1,4 @@
-from base.event_system import EventSystem
+from src.base.event_system import EventSystem
 
 
 class DummyEmitter:

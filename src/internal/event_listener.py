@@ -1,5 +1,5 @@
 from abc import ABC
-from base.event_system import EventSystem
+from src.base.event_system import EventSystem
 
 
 class EventListener(ABC):

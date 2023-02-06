@@ -1,4 +1,4 @@
-from internal.event_system import InternalEventSystem
+from src.internal.event_system import InternalEventSystem
 from tests.helpers.dummy_emitter import DummyEmitter
 from tests.helpers.dummy_subscriber import (
     DummySubscriber_zero,

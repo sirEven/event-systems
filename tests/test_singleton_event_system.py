@@ -1,4 +1,4 @@
-from shared.event_system import SharedEventSystem
+from src.shared.event_system import SharedEventSystem
 from tests.helpers.dummy_emitter import DummyEmitter
 from tests.helpers.dummy_subscriber import (
     DummySubscriber_zero,
