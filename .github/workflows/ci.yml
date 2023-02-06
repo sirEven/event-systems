@@ -1,6 +1,10 @@
 name: Python package unit tests
 
-on: [push]
+on:
+  push:
+    branches:
+      - main
+      - release
 
 jobs:
   test:
@@ -21,3 +25,9 @@ jobs:
     - name: Run unit tests
       run: |
         python -m pytest tests/
+    - name: Publish to PyPI
+      if: github.ref == 'refs/heads/release'
+      uses: pypa/gh-action-pypi-publish@v1
+      env:
+        TWINE_USERNAME: ${{ secrets.PYPI_USERNAME }}
+        TWINE_PASSWORD: ${{ secrets.PYPI_PASSWORD }}
