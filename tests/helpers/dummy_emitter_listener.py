@@ -1,12 +1,13 @@
 from abc import ABC, abstractmethod
-from factory.event_listener import EventListener
+from base.event_system import EventSystem
+from internal.event_listener import EventListener
 
 
 class DummyEmitterListener(EventListener, ABC):
     @abstractmethod
     def setup_DummyEmitter_event_handlers(
         self,
-        event_system,
+        event_system: EventSystem,
         event_emitted_handler=None,
         another_event_emitted_handler=None,
     ):

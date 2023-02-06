@@ -1,4 +1,4 @@
-from singleton.event_system import EventSystem
+from shared.event_system import SharedEventSystem
 from tests.helpers.dummy_emitter import DummyEmitter
 from tests.helpers.dummy_subscriber import (
     DummySubscriber_zero,
@@ -12,13 +12,13 @@ def test_events_system_subscribe_zero_subscription_results_in_zero_entries():
     emitter = create_emitter()
 
     # when
-    subscriber = DummySubscriber_zero(EventSystem)
+    subscriber = DummySubscriber_zero(SharedEventSystem)
 
     # then
-    assert len(EventSystem._instance.subscribers) == 0
+    assert len(SharedEventSystem._subscribers) == 0
 
     # clean up
-    EventSystem._instance = None
+    SharedEventSystem._instance = None
 
 
 def test_events_system_subscribe_one_subscription_results_in_one_entry():
@@ -26,33 +26,34 @@ def test_events_system_subscribe_one_subscription_results_in_one_entry():
     emitter = create_emitter()
 
     # when
-    subscriber = DummySubscriber_one(EventSystem)
+    subscriber = DummySubscriber_one(SharedEventSystem)
 
     # then
-    assert len(EventSystem._instance.subscribers) == 1
+    assert len(SharedEventSystem._subscribers) == 1
 
     # clean up
-    EventSystem._instance = None
+    SharedEventSystem._instance = None
 
 
-def test_events_system_subscribe_two_subscriptions_results_in_two_entries():
+def test_events_system_subscribe_two_subscriptions_results_in_two_entries(capsys):
     # given
     emitter = create_emitter()
 
     # when
-    subscriber = DummySubscriber_two(EventSystem)
+    subscriber = DummySubscriber_two(SharedEventSystem)
 
     # then
-    assert len(EventSystem._instance.subscribers) == 2
+    assert len(SharedEventSystem._subscribers) == 2
 
     # clean up
-    EventSystem._instance = None
+    SharedEventSystem._instance = None
+    SharedEventSystem._subscribers = None
 
 
 def test_events_system_post_zero_subscriptions_results_in_zero_events_handled(capsys):
     # given
     emitter = create_emitter()
-    subscriber = DummySubscriber_zero(EventSystem)
+    subscriber = DummySubscriber_zero(SharedEventSystem)
 
     # when
     emitter.emit_event()
@@ -63,13 +64,13 @@ def test_events_system_post_zero_subscriptions_results_in_zero_events_handled(ca
     assert expected == out
 
     # clean up
-    EventSystem._instance = None
+    SharedEventSystem._instance = None
 
 
 def test_events_system_post_one_subscription_results_in_one_event_handled(capsys):
     # given
     emitter = create_emitter()
-    subscriber = DummySubscriber_one(EventSystem)
+    subscriber = DummySubscriber_one(SharedEventSystem)
 
     # when
     emitter.emit_event()
@@ -80,13 +81,13 @@ def test_events_system_post_one_subscription_results_in_one_event_handled(capsys
     assert expected == out
 
     # clean up
-    EventSystem._instance = None
+    SharedEventSystem._instance = None
 
 
 def test_events_system_post_two_subscriptions_results_in_two_events_handled(capsys):
     # given
     emitter = create_emitter()
-    subscriber = DummySubscriber_two(EventSystem)
+    subscriber = DummySubscriber_two(SharedEventSystem)
 
     # when
     emitter.emit_event()
@@ -99,7 +100,7 @@ def test_events_system_post_two_subscriptions_results_in_two_events_handled(caps
     assert out == expected_1 + expected_2
 
     # clean up
-    EventSystem._instance = None
+    SharedEventSystem._instance = None
 
 
 def test_events_system_post_with_event_data_one_subscription_results_in_one_event_handled_with_event_data(
@@ -107,7 +108,7 @@ def test_events_system_post_with_event_data_one_subscription_results_in_one_even
 ):
     # given
     emitter = create_emitter()
-    subscriber = DummySubscriber_one(EventSystem)
+    subscriber = DummySubscriber_one(SharedEventSystem)
 
     # when
     emitter.emit_event("some event data")
@@ -118,7 +119,7 @@ def test_events_system_post_with_event_data_one_subscription_results_in_one_even
     assert out == expected
 
     # clean up
-    EventSystem._instance = None
+    SharedEventSystem._instance = None
 
 
 def test_events_system_post_raises_exception_if_not_initialized_beforehand(capsys):
@@ -139,7 +140,8 @@ def test_events_system_post_raises_exception_if_not_initialized_beforehand(capsy
     assert out == expected
 
     # clean up
-    EventSystem._instance = None
+    SharedEventSystem._instance = None
+
 
 def create_emitter():
-    return DummyEmitter(EventSystem)
+    return DummyEmitter(SharedEventSystem)

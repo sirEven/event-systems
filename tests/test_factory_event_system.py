@@ -1,4 +1,4 @@
-from factory.event_system import EventSystem
+from internal.event_system import InternalEventSystem
 from tests.helpers.dummy_emitter import DummyEmitter
 from tests.helpers.dummy_subscriber import (
     DummySubscriber_zero,
@@ -9,7 +9,7 @@ from tests.helpers.dummy_subscriber import (
 
 def test_events_system_subscribe_zero_subscription_results_in_zero_entries():
     # given
-    es = EventSystem()
+    es = InternalEventSystem()
     emitter = DummyEmitter(es)
 
     # when
@@ -21,7 +21,7 @@ def test_events_system_subscribe_zero_subscription_results_in_zero_entries():
 
 def test_events_system_subscribe_one_subscription_results_in_one_entry():
     # given
-    es = EventSystem()
+    es = InternalEventSystem()
     emitter = DummyEmitter(es)
 
     # when
@@ -33,7 +33,7 @@ def test_events_system_subscribe_one_subscription_results_in_one_entry():
 
 def test_events_system_subscribe_two_subscriptions_results_in_two_entries():
     # given
-    es = EventSystem()
+    es = InternalEventSystem()
     emitter = DummyEmitter(es)
 
     # when
@@ -45,7 +45,7 @@ def test_events_system_subscribe_two_subscriptions_results_in_two_entries():
 
 def test_events_system_post_zero_subscriptions_results_in_zero_events_handled(capsys):
     # given
-    es = EventSystem()
+    es = InternalEventSystem()
     emitter = DummyEmitter(es)
     subscriber = DummySubscriber_zero(es)
 
@@ -60,7 +60,7 @@ def test_events_system_post_zero_subscriptions_results_in_zero_events_handled(ca
 
 def test_events_system_post_one_subscription_results_in_one_event_handled(capsys):
     # given
-    es = EventSystem()
+    es = InternalEventSystem()
     emitter = DummyEmitter(es)
     subscriber = DummySubscriber_one(es)
 
@@ -75,7 +75,7 @@ def test_events_system_post_one_subscription_results_in_one_event_handled(capsys
 
 def test_events_system_post_two_subscriptions_results_in_two_events_handled(capsys):
     # given
-    es = EventSystem()
+    es = InternalEventSystem()
     emitter = DummyEmitter(es)
     subscriber = DummySubscriber_two(es)
 
@@ -94,7 +94,7 @@ def test_events_system_post_with_event_data_one_subscription_results_in_one_even
     capsys,
 ):
     # given
-    es = EventSystem()
+    es = InternalEventSystem()
     emitter = DummyEmitter(es)
     subscriber = DummySubscriber_one(es)
 
@@ -109,8 +109,8 @@ def test_events_system_post_with_event_data_one_subscription_results_in_one_even
 
 def test_events_system_initialize_two_objects_results_in_seperate_identities():
     # given
-    event_system_1 = EventSystem()
-    event_system_2 = EventSystem()
+    event_system_1 = InternalEventSystem()
+    event_system_2 = InternalEventSystem()
 
     # when
     object_id_1 = id(event_system_1)
@@ -121,8 +121,8 @@ def test_events_system_initialize_two_objects_results_in_seperate_identities():
 
 def test_events_system_subscribe_to_two_instances_results_in_each_having_one_subscription():
     # given
-    es_1 = EventSystem()
-    es_2 = EventSystem()
+    es_1 = InternalEventSystem()
+    es_2 = InternalEventSystem()
 
     # when
     subscriber_1 = DummySubscriber_one(es_1)
