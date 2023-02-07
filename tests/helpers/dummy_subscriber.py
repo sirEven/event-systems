@@ -1,6 +1,6 @@
 from typing import Any
 from tests.helpers.dummy_emitter_listener import DummyEmitterListener
-from src.base.event_system import EventSystem
+from event_systems.base.event_system import EventSystem
 
 
 class DummySubscriber_zero(DummyEmitterListener):

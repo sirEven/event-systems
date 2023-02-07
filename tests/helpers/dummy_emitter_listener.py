@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
-from src.base.event_system import EventSystem
-from src.internal.event_listener import EventListener
+from event_systems.base.event_system import EventSystem
+from event_systems.internal.event_listener import EventListener
 
 
 class DummyEmitterListener(EventListener, ABC):

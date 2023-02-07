@@ -1,7 +1,7 @@
 import threading
 from typing import Callable, Dict, List, Any
 
-# TODO: Replace Individual with a better name
+
 class InternalEventSystem:
     """
     This implementation uses a factory pattern and allows individual objects to have their own event system, passed as a variable to each of their child objects.
