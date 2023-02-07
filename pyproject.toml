@@ -19,3 +19,5 @@ classifiers = [
 
 [project.urls]
 "Homepage" = "https://github.com/sirEven/event-systems.git"
+
+[mypy]
