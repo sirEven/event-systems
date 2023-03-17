@@ -1,12 +1,9 @@
-from typing import Protocol, Callable
+from typing import Protocol, Callable, Any
 
 
 class EventSystem(Protocol):
     def subscribe(self, event_type: str, fn: Callable):
-        pass
+        ...
 
-    def post(self):
-        pass
-
-    def gaga(self):
-        pass
+    def post(self, event_type: str, event_data: Any):
+        ...
