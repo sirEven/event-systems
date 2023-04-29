@@ -21,3 +21,4 @@ classifiers = [
 "Homepage" = "https://github.com/sirEven/event-systems.git"
 
 [mypy]
+ignore_missing_imports = true
