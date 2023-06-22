@@ -1,4 +1,4 @@
-from typing import Protocol, Callable, Any
+from typing import Protocol, Callable, Any, List, Dict
 
 
 class EventSystem(Protocol):
@@ -6,4 +6,7 @@ class EventSystem(Protocol):
         ...
 
     def post(self, event_type: str, event_data: Any):
+        ...
+
+    def get_subscribers(self) -> Dict[str, List[Callable]]:
         ...

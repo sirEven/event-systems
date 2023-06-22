@@ -22,3 +22,6 @@ class InternalEventSystem:
         if event_type in self._subscribers:
             for fn in self._subscribers[event_type]:
                 fn(event_data)
+
+    def get_subscribers(self) -> Dict[str, List[Callable]]:
+        return self._subscribers
