@@ -10,10 +10,10 @@ from tests.helpers.dummy_subscriber import (
 def test_events_system_subscribe_zero_subscription_results_in_zero_entries():
     # given
     es = InternalEventSystem()
-    emitter = DummyEmitter(es)
+    _ = DummyEmitter(es)
 
     # when
-    subscriber = DummySubscriber_zero(es)
+    _ = DummySubscriber_zero(es)
 
     # then
     assert len(es._subscribers) == 0
@@ -22,10 +22,10 @@ def test_events_system_subscribe_zero_subscription_results_in_zero_entries():
 def test_events_system_subscribe_one_subscription_results_in_one_entry():
     # given
     es = InternalEventSystem()
-    emitter = DummyEmitter(es)
+    _ = DummyEmitter(es)
 
     # when
-    subscriber = DummySubscriber_one(es)
+    _ = DummySubscriber_one(es)
 
     # then
     assert len(es._subscribers) == 1
@@ -34,10 +34,10 @@ def test_events_system_subscribe_one_subscription_results_in_one_entry():
 def test_events_system_subscribe_two_subscriptions_results_in_two_entries():
     # given
     es = InternalEventSystem()
-    emitter = DummyEmitter(es)
+    _ = DummyEmitter(es)
 
     # when
-    subscriber = DummySubscriber_two(es)
+    _ = DummySubscriber_two(es)
 
     # then
     assert len(es._subscribers) == 2
@@ -47,7 +47,7 @@ def test_events_system_post_zero_subscriptions_results_in_zero_events_handled(ca
     # given
     es = InternalEventSystem()
     emitter = DummyEmitter(es)
-    subscriber = DummySubscriber_zero(es)
+    _ = DummySubscriber_zero(es)
 
     # when
     emitter.emit_event()
@@ -62,7 +62,7 @@ def test_events_system_post_one_subscription_results_in_one_event_handled(capsys
     # given
     es = InternalEventSystem()
     emitter = DummyEmitter(es)
-    subscriber = DummySubscriber_one(es)
+    _ = DummySubscriber_one(es)
 
     # when
     emitter.emit_event()
@@ -77,7 +77,7 @@ def test_events_system_post_two_subscriptions_results_in_two_events_handled(caps
     # given
     es = InternalEventSystem()
     emitter = DummyEmitter(es)
-    subscriber = DummySubscriber_two(es)
+    _ = DummySubscriber_two(es)
 
     # when
     emitter.emit_event()
@@ -90,13 +90,13 @@ def test_events_system_post_two_subscriptions_results_in_two_events_handled(caps
     assert out == expected_1 + expected_2
 
 
-def test_events_system_post_with_event_data_one_subscription_results_in_one_event_handled_with_event_data(
+def test_post_with_event_data_one_subscription_results_in_one_event_handled_with_data(
     capsys,
 ):
     # given
     es = InternalEventSystem()
     emitter = DummyEmitter(es)
-    subscriber = DummySubscriber_one(es)
+    _ = DummySubscriber_one(es)
 
     # when
     emitter.emit_event("some event data")
@@ -119,14 +119,14 @@ def test_events_system_initialize_two_objects_results_in_seperate_identities():
     assert object_id_1 != object_id_2
 
 
-def test_events_system_subscribe_to_two_instances_results_in_each_having_one_subscription():
+def test_subscribe_to_two_instances_results_in_each_having_one_subscription():
     # given
     es_1 = InternalEventSystem()
     es_2 = InternalEventSystem()
 
     # when
-    subscriber_1 = DummySubscriber_one(es_1)
-    subscriber_2 = DummySubscriber_one(es_2)
+    _ = DummySubscriber_one(es_1)
+    _ = DummySubscriber_one(es_2)
 
     # then
     assert len(es_1._subscribers) == 1

@@ -12,7 +12,7 @@ class DummyEmitterListener(EventListener, ABC):
         another_event_emitted_handler=None,
     ):
         subscription_dict = {
-            f"DummyEmitter_event_emitted_event": event_emitted_handler,
+            "DummyEmitter_event_emitted_event": event_emitted_handler,
             "DummyEmitter_another_event_emitted_event": another_event_emitted_handler,
         }
         super().setup_event_handlers(event_system, **subscription_dict)

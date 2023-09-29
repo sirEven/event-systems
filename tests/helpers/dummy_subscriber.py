@@ -78,4 +78,4 @@ def print_post_output(emitter, text: str, event_data: Any):
     if not event_data:
         print(none_text)
     else:
-        print(none_text + " " + event_data)
+        print(f"{none_text} {event_data}")

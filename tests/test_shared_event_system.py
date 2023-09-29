@@ -9,10 +9,10 @@ from tests.helpers.dummy_subscriber import (
 
 def test_events_system_subscribe_zero_subscription_results_in_zero_entries():
     # given
-    emitter = create_emitter()
+    _ = create_emitter()
 
     # when
-    subscriber = DummySubscriber_zero(SharedEventSystem)
+    _ = DummySubscriber_zero(SharedEventSystem)
 
     # then
     assert len(SharedEventSystem._subscribers) == 0
@@ -23,10 +23,10 @@ def test_events_system_subscribe_zero_subscription_results_in_zero_entries():
 
 def test_events_system_subscribe_one_subscription_results_in_one_entry():
     # given
-    emitter = create_emitter()
+    _ = create_emitter()
 
     # when
-    subscriber = DummySubscriber_one(SharedEventSystem)
+    _ = DummySubscriber_one(SharedEventSystem)
 
     # then
     assert len(SharedEventSystem._subscribers) == 1
@@ -37,10 +37,10 @@ def test_events_system_subscribe_one_subscription_results_in_one_entry():
 
 def test_events_system_subscribe_two_subscriptions_results_in_two_entries(capsys):
     # given
-    emitter = create_emitter()
+    _ = create_emitter()
 
     # when
-    subscriber = DummySubscriber_two(SharedEventSystem)
+    _ = DummySubscriber_two(SharedEventSystem)
 
     # then
     assert len(SharedEventSystem._subscribers) == 2
@@ -53,7 +53,7 @@ def test_events_system_subscribe_two_subscriptions_results_in_two_entries(capsys
 def test_events_system_post_zero_subscriptions_results_in_zero_events_handled(capsys):
     # given
     emitter = create_emitter()
-    subscriber = DummySubscriber_zero(SharedEventSystem)
+    _ = DummySubscriber_zero(SharedEventSystem)
 
     # when
     emitter.emit_event()
@@ -70,7 +70,7 @@ def test_events_system_post_zero_subscriptions_results_in_zero_events_handled(ca
 def test_events_system_post_one_subscription_results_in_one_event_handled(capsys):
     # given
     emitter = create_emitter()
-    subscriber = DummySubscriber_one(SharedEventSystem)
+    _ = DummySubscriber_one(SharedEventSystem)
 
     # when
     emitter.emit_event()
@@ -87,14 +87,14 @@ def test_events_system_post_one_subscription_results_in_one_event_handled(capsys
 def test_events_system_post_two_subscriptions_results_in_two_events_handled(capsys):
     # given
     emitter = create_emitter()
-    subscriber = DummySubscriber_two(SharedEventSystem)
+    _ = DummySubscriber_two(SharedEventSystem)
 
     # when
     emitter.emit_event()
     emitter.emit_another_event()
 
     # then
-    out, err = capsys.readouterr()
+    out, _ = capsys.readouterr()
     expected_1 = "DummySubscriber_two - event handeled\n"
     expected_2 = "DummySubscriber_two - another event handeled\n"
     assert out == expected_1 + expected_2
@@ -103,18 +103,18 @@ def test_events_system_post_two_subscriptions_results_in_two_events_handled(caps
     SharedEventSystem._instance = None
 
 
-def test_events_system_post_with_event_data_one_subscription_results_in_one_event_handled_with_event_data(
+def test_post_with_event_data_one_subscription_results_in_one_event_handled_with_data(
     capsys,
 ):
     # given
     emitter = create_emitter()
-    subscriber = DummySubscriber_one(SharedEventSystem)
+    _ = DummySubscriber_one(SharedEventSystem)
 
     # when
     emitter.emit_event("some event data")
 
     # then
-    out, err = capsys.readouterr()
+    out, _ = capsys.readouterr()
     expected = "DummySubscriber_one - event handeled some event data\n"
     assert out == expected
 
@@ -134,9 +134,7 @@ def test_events_system_post_raises_exception_if_not_initialized_beforehand(capsy
 
     # then
     out, err = capsys.readouterr()
-    expected = (
-        "At least one subscription needs to be registered before posting events.\n"
-    )
+    expected = "At least one subscription has to be registered before posting events.\n"
     assert out == expected
 
     # clean up

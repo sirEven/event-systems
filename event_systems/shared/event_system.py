@@ -4,7 +4,8 @@ from typing import Optional, Callable, Dict, List, Any
 
 class SharedEventSystem:
     """
-    This implementation uses a singleton pattern and maintains one global dictionary for all objects to store their subscriptions and run their event system.
+    This implementation uses a singleton pattern and maintains one global dictionary
+    for all objects to store their subscriptions and run their event system.
     """
 
     _instance: Optional["SharedEventSystem"] = None
@@ -38,11 +39,13 @@ class SharedEventSystem:
 
         Raises:
             Exception: If an instance of EventsSystem has not been initialized.
-            Note: This happens, if post() is being called before subscribe() has not been called at least once, which leads to the instance of EventsSystem being None.
+            Note: This happens, if post() is being called before subscribe() has not
+            been called at least once, which leads to the instance of EventsSystem being
+            None.
         """
         if cls._instance is None:
             raise Exception(
-                "At least one subscription needs to be registered before posting events."
+                "At least one subscription has to be registered before posting events."
             )
 
         if event_type in cls._subscribers:
