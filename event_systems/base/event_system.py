@@ -1,12 +1,14 @@
-from typing import Protocol, Callable, Any, List, Dict
+from typing import Protocol, Any, List, Dict
+
+from event_systems.base.handler import Handler
 
 
 class EventSystem(Protocol):
-    def subscribe(self, event_type: str, fn: Callable):
+    def subscribe(self, event_type: str, fn: Handler) -> None:
         ...
 
-    def post(self, event_type: str, event_data: Any):
+    def post(self, event_type: str, event_data: Any) -> None:
         ...
 
-    def get_subscribers(self) -> Dict[str, List[Callable]]:
+    def get_subscribers(self) -> Dict[str, List[Handler]]:
         ...

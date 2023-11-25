@@ -1,5 +1,7 @@
 import threading
-from typing import Optional, Callable, Dict, List, Any
+from typing import Optional, Dict, List, Any
+
+from event_systems.base.handler import Handler
 
 
 class SharedEventSystem:
@@ -10,21 +12,17 @@ class SharedEventSystem:
 
     _instance: Optional["SharedEventSystem"] = None
     _lock = threading.Lock()
-    _subscribers: Dict[str, List[Callable]]
-
-    def __init__(self):
-        if not SharedEventSystem._instance:
-            SharedEventSystem._instance = self
+    _subscribers: Dict[str, List[Handler]] = {}
 
     @classmethod
-    def initialize(cls):
+    def initialize(cls) -> None:
         if not cls._instance:
             with cls._lock:
                 cls._instance = cls()
                 cls._subscribers = {}
 
     @classmethod
-    def subscribe(cls, event_type: str, fn: Callable):
+    def subscribe(cls, event_type: str, fn: Handler) -> None:
         if not cls._instance:
             cls.initialize()
         if fn is not None:
@@ -33,7 +31,7 @@ class SharedEventSystem:
             cls._subscribers[event_type].append(fn)
 
     @classmethod
-    def post(cls, event_type: str, event_data: Any):
+    def post(cls, event_type: str, event_data: Any) -> None:
         """
         Post an event to all subscribers of a specified event type.
 
@@ -44,10 +42,15 @@ class SharedEventSystem:
             None.
         """
         if cls._instance is None:
-            raise Exception(
+            raise RuntimeError(
                 "At least one subscription has to be registered before posting events."
             )
 
         if event_type in cls._subscribers:
             for fn in cls._subscribers[event_type]:
-                fn(event_data)
+                if fn:
+                    fn(event_data)
+
+    @classmethod
+    def get_subscribers(cls) -> Dict[str, List[Handler]]:
+        return cls._subscribers

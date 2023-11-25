@@ -1,5 +1,7 @@
 import threading
-from typing import Callable, Dict, List, Any
+from typing import Dict, List, Any
+
+from event_systems.base.handler import Handler
 
 
 class InternalEventSystem:
@@ -10,19 +12,20 @@ class InternalEventSystem:
 
     def __init__(self) -> None:
         self._lock = threading.Lock()
-        self._subscribers: Dict[str, List[Callable]] = {}
+        self._subscribers: Dict[str, List[Handler]] = {}
 
-    def subscribe(self, event_type: str, fn: Callable):
+    def subscribe(self, event_type: str, fn: Handler) -> None:
         with self._lock:
             if fn is not None:
                 if event_type not in self._subscribers:
                     self._subscribers[event_type] = []
                 self._subscribers[event_type].append(fn)
 
-    def post(self, event_type: str, event_data: Any):
+    def post(self, event_type: str, event_data: Any) -> None:
         if event_type in self._subscribers:
             for fn in self._subscribers[event_type]:
-                fn(event_data)
+                if fn:
+                    fn(event_data)
 
-    def get_subscribers(self) -> Dict[str, List[Callable]]:
+    def get_subscribers(self) -> Dict[str, List[Handler]]:
         return self._subscribers

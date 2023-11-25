@@ -1,3 +1,4 @@
-from typing import Optional, Union, Callable
+from typing import Callable
 
-Handler = Optional[Union[Callable, None]]
+
+Handler = Callable | None

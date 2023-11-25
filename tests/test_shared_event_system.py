@@ -1,4 +1,6 @@
+import pytest
 from event_systems.shared.event_system import SharedEventSystem
+
 from tests.helpers.dummy_emitter import DummyEmitter
 from tests.helpers.dummy_subscriber import (
     DummySubscriber_zero,
@@ -7,7 +9,7 @@ from tests.helpers.dummy_subscriber import (
 )
 
 
-def test_events_system_subscribe_zero_subscription_results_in_zero_entries():
+def test_events_system_subscribe_zero_subscription_results_in_zero_entries() -> None:
     # given
     _ = create_emitter()
 
@@ -15,13 +17,13 @@ def test_events_system_subscribe_zero_subscription_results_in_zero_entries():
     _ = DummySubscriber_zero(SharedEventSystem)
 
     # then
-    assert len(SharedEventSystem._subscribers) == 0
+    assert len(SharedEventSystem.get_subscribers()) == 0
 
     # clean up
-    SharedEventSystem._instance = None
+    SharedEventSystem._subscribers = {}
 
 
-def test_events_system_subscribe_one_subscription_results_in_one_entry():
+def test_events_system_subscribe_one_subscription_results_in_one_entry() -> None:
     # given
     _ = create_emitter()
 
@@ -35,7 +37,9 @@ def test_events_system_subscribe_one_subscription_results_in_one_entry():
     SharedEventSystem._instance = None
 
 
-def test_events_system_subscribe_two_subscriptions_results_in_two_entries(capsys):
+def test_events_system_subscribe_two_subscriptions_results_in_two_entries(
+    capsys: pytest.CaptureFixture,
+) -> None:
     # given
     _ = create_emitter()
 
@@ -47,10 +51,12 @@ def test_events_system_subscribe_two_subscriptions_results_in_two_entries(capsys
 
     # clean up
     SharedEventSystem._instance = None
-    SharedEventSystem._subscribers = None
+    SharedEventSystem._subscribers = {}
 
 
-def test_events_system_post_zero_subscriptions_results_in_zero_events_handled(capsys):
+def test_events_system_post_zero_subscriptions_results_in_zero_events_handled(
+    capsys: pytest.CaptureFixture,
+) -> None:
     # given
     emitter = create_emitter()
     _ = DummySubscriber_zero(SharedEventSystem)
@@ -67,7 +73,9 @@ def test_events_system_post_zero_subscriptions_results_in_zero_events_handled(ca
     SharedEventSystem._instance = None
 
 
-def test_events_system_post_one_subscription_results_in_one_event_handled(capsys):
+def test_events_system_post_one_subscription_results_in_one_event_handled(
+    capsys: pytest.CaptureFixture,
+) -> None:
     # given
     emitter = create_emitter()
     _ = DummySubscriber_one(SharedEventSystem)
@@ -84,7 +92,9 @@ def test_events_system_post_one_subscription_results_in_one_event_handled(capsys
     SharedEventSystem._instance = None
 
 
-def test_events_system_post_two_subscriptions_results_in_two_events_handled(capsys):
+def test_events_system_post_two_subscriptions_results_in_two_events_handled(
+    capsys: pytest.CaptureFixture,
+) -> None:
     # given
     emitter = create_emitter()
     _ = DummySubscriber_two(SharedEventSystem)
@@ -104,8 +114,8 @@ def test_events_system_post_two_subscriptions_results_in_two_events_handled(caps
 
 
 def test_post_with_event_data_one_subscription_results_in_one_event_handled_with_data(
-    capsys,
-):
+    capsys: pytest.CaptureFixture,
+) -> None:
     # given
     emitter = create_emitter()
     _ = DummySubscriber_one(SharedEventSystem)
@@ -122,7 +132,9 @@ def test_post_with_event_data_one_subscription_results_in_one_event_handled_with
     SharedEventSystem._instance = None
 
 
-def test_events_system_post_raises_exception_if_not_initialized_beforehand(capsys):
+def test_events_system_post_raises_exception_if_not_initialized_beforehand(
+    capsys: pytest.CaptureFixture,
+) -> None:
     # given
     emitter = create_emitter()
 
@@ -141,5 +153,5 @@ def test_events_system_post_raises_exception_if_not_initialized_beforehand(capsy
     SharedEventSystem._instance = None
 
 
-def create_emitter():
+def create_emitter() -> DummyEmitter:
     return DummyEmitter(SharedEventSystem)

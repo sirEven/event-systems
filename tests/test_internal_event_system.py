@@ -1,3 +1,4 @@
+import pytest
 from event_systems.internal.event_system import InternalEventSystem
 from tests.helpers.dummy_emitter import DummyEmitter
 from tests.helpers.dummy_subscriber import (
@@ -7,7 +8,7 @@ from tests.helpers.dummy_subscriber import (
 )
 
 
-def test_events_system_subscribe_zero_subscription_results_in_zero_entries():
+def test_events_system_subscribe_zero_subscription_results_in_zero_entries() -> None:
     # given
     es = InternalEventSystem()
     _ = DummyEmitter(es)
@@ -19,7 +20,7 @@ def test_events_system_subscribe_zero_subscription_results_in_zero_entries():
     assert len(es._subscribers) == 0
 
 
-def test_events_system_subscribe_one_subscription_results_in_one_entry():
+def test_events_system_subscribe_one_subscription_results_in_one_entry() -> None:
     # given
     es = InternalEventSystem()
     _ = DummyEmitter(es)
@@ -31,7 +32,7 @@ def test_events_system_subscribe_one_subscription_results_in_one_entry():
     assert len(es._subscribers) == 1
 
 
-def test_events_system_subscribe_two_subscriptions_results_in_two_entries():
+def test_events_system_subscribe_two_subscriptions_results_in_two_entries() -> None:
     # given
     es = InternalEventSystem()
     _ = DummyEmitter(es)
@@ -43,7 +44,9 @@ def test_events_system_subscribe_two_subscriptions_results_in_two_entries():
     assert len(es._subscribers) == 2
 
 
-def test_events_system_post_zero_subscriptions_results_in_zero_events_handled(capsys):
+def test_events_system_post_zero_subscriptions_results_in_zero_events_handled(
+    capsys: pytest.CaptureFixture,
+) -> None:
     # given
     es = InternalEventSystem()
     emitter = DummyEmitter(es)
@@ -58,7 +61,9 @@ def test_events_system_post_zero_subscriptions_results_in_zero_events_handled(ca
     assert expected == out
 
 
-def test_events_system_post_one_subscription_results_in_one_event_handled(capsys):
+def test_events_system_post_one_subscription_results_in_one_event_handled(
+    capsys: pytest.CaptureFixture,
+) -> None:
     # given
     es = InternalEventSystem()
     emitter = DummyEmitter(es)
@@ -73,7 +78,9 @@ def test_events_system_post_one_subscription_results_in_one_event_handled(capsys
     assert expected == out
 
 
-def test_events_system_post_two_subscriptions_results_in_two_events_handled(capsys):
+def test_events_system_post_two_subscriptions_results_in_two_events_handled(
+    capsys: pytest.CaptureFixture,
+) -> None:
     # given
     es = InternalEventSystem()
     emitter = DummyEmitter(es)
@@ -91,8 +98,8 @@ def test_events_system_post_two_subscriptions_results_in_two_events_handled(caps
 
 
 def test_post_with_event_data_one_subscription_results_in_one_event_handled_with_data(
-    capsys,
-):
+    capsys: pytest.CaptureFixture,
+) -> None:
     # given
     es = InternalEventSystem()
     emitter = DummyEmitter(es)
@@ -107,7 +114,7 @@ def test_post_with_event_data_one_subscription_results_in_one_event_handled_with
     assert out == expected
 
 
-def test_events_system_initialize_two_objects_results_in_seperate_identities():
+def test_events_system_initialize_two_objects_results_in_seperate_identities() -> None:
     # given
     event_system_1 = InternalEventSystem()
     event_system_2 = InternalEventSystem()
@@ -119,7 +126,7 @@ def test_events_system_initialize_two_objects_results_in_seperate_identities():
     assert object_id_1 != object_id_2
 
 
-def test_subscribe_to_two_instances_results_in_each_having_one_subscription():
+def test_subscribe_to_two_instances_results_in_each_having_one_subscription() -> None:
     # given
     es_1 = InternalEventSystem()
     es_2 = InternalEventSystem()
