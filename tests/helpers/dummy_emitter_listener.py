@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
 from typing import Type, Dict
 from event_systems.base.event_system import EventSystem
-from event_systems.internal.event_listener import EventListener
+from event_systems.base.event_listener import EventListener
 from event_systems.base.handler import Handler
 
 
