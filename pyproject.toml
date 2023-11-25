@@ -23,8 +23,23 @@ classifiers = [
 [mypy]
 ignore_missing_imports = true
 
-[tool.pytest.ini_options]
-addopts = "--cov=src --cov-report=xml --cov-report=html"
-
 [tool.setuptools.package-data]
 "event_systems" = ["py.typed"]
+
+[tool.coverage.run]
+omit = [
+    # omit anything in a .local directory anywhere
+    "test_*",
+    "main.py",
+    "__init__.py",
+    "conftest.py",
+]
+
+[tool.coverage.report]
+exclude_also = [
+    "class .*\\bProtocol\\):",
+    "@(abc\\.)?abstractmethod",
+]
+
+[tool.mypy]
+exclude = "^tests/"
