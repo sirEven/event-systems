@@ -1,4 +1,4 @@
 from typing import Callable
 
 
-Handler = Callable | None
+Handler = Callable[..., None] | None
