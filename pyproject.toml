@@ -4,13 +4,17 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "event-systems"
+<<<<<<< HEAD
 version = "0.1.4"
+=======
+version = "0.1.5"
+>>>>>>> main
 authors = [
   { email="sir_even@icloud.com"},
 ]
 description = "A collection of thread-safe event systems which components can use to subscribe and post to other components."
 readme = "README.md"
-requires-python = ">=3.7"
+requires-python = ">=3.10"
 classifiers = [
     "Programming Language :: Python :: 3",
     "License :: OSI Approved :: MIT License",
