@@ -50,6 +50,7 @@ jobs:
         password: ${{ secrets.PYPI_MAIN_TOKEN }}
 
 
+# TODO: check if this is still needed
 # TODO: Run d with exit code 1.python3 -m build
 # /opt/hostedtoolcache/Python/3.8.16/x64/bin/python3: No module named build
 # Error: Process complete
