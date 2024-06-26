@@ -4,11 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "event-systems"
-<<<<<<< HEAD
-version = "0.1.4"
-=======
 version = "0.1.5"
->>>>>>> main
 authors = [
   { email="sir_even@icloud.com"},
 ]
