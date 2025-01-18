@@ -4,6 +4,7 @@ from typing import Optional, Dict, List, Any
 from event_systems.base.handler import Handler
 
 
+# TODO: Enable async handlers as well here, same as InternalEventSystem
 class SharedEventSystem:
     """
     This implementation uses a singleton pattern and maintains one global dictionary
@@ -12,26 +13,26 @@ class SharedEventSystem:
 
     _instance: Optional["SharedEventSystem"] = None
     _lock = threading.Lock()
-    _subscribers: Dict[str, List[Handler]] = {}
+    _subscriptions: Dict[str, List[Handler]] = {}
 
     @classmethod
     def initialize(cls) -> None:
         if not cls._instance:
             with cls._lock:
                 cls._instance = cls()
-                cls._subscribers = {}
+                cls._subscriptions = {}
 
     @classmethod
-    def subscribe(cls, event_type: str, fn: Handler) -> None:
+    async def subscribe(cls, event_type: str, fn: Handler) -> None:
         if not cls._instance:
             cls.initialize()
         if fn is not None:
-            if event_type not in cls._subscribers:
-                cls._subscribers[event_type] = []
-            cls._subscribers[event_type].append(fn)
+            if event_type not in cls._subscriptions:
+                cls._subscriptions[event_type] = []
+            cls._subscriptions[event_type].append(fn)
 
     @classmethod
-    def post(cls, event_type: str, event_data: Any) -> None:
+    async def post(cls, event_type: str, event_data: Any) -> None:
         """
         Post an event to all subscribers of a specified event type.
 
@@ -46,11 +47,11 @@ class SharedEventSystem:
                 "At least one subscription has to be registered before posting events."
             )
 
-        if event_type in cls._subscribers:
-            for fn in cls._subscribers[event_type]:
+        if event_type in cls._subscriptions:
+            for fn in cls._subscriptions[event_type]:
                 if fn:
                     fn(event_data)
 
     @classmethod
-    def get_subscribers(cls) -> Dict[str, List[Handler]]:
-        return cls._subscribers
+    async def get_subscriptions(cls) -> Dict[str, List[Handler]]:
+        return cls._subscriptions

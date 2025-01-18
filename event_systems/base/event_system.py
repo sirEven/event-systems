@@ -1,14 +1,12 @@
-from typing import Protocol, Any, List, Dict
+from typing import Protocol, Any, List, Dict, runtime_checkable
 
 from event_systems.base.handler import Handler
 
 
+@runtime_checkable
 class EventSystem(Protocol):
-    def subscribe(self, event_type: str, fn: Handler) -> None:
-        ...
+    def subscribe(self, event_type: str, fn: Handler) -> None: ...
 
-    def post(self, event_type: str, event_data: Any) -> None:
-        ...
+    def post(self, event_type: str, event_data: Any) -> None: ...
 
-    def get_subscribers(self) -> Dict[str, List[Handler]]:
-        ...
+    def get_subscribers(self) -> Dict[str, List[Handler]]: ...

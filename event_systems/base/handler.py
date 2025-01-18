@@ -1,4 +1,4 @@
-from typing import Callable
+from typing import Any, Callable
 
 
-Handler = Callable[..., None] | None
+Handler = Callable[[Any], Any]

@@ -16,6 +16,9 @@ classifiers = [
     "License :: OSI Approved :: MIT License",
     "Operating System :: OS Independent",
 ]
+dependencies = [
+    
+]
 
 [project.urls]
 "Homepage" = "https://github.com/sirEven/event-systems.git"
@@ -43,3 +46,19 @@ exclude_also = [
 
 [tool.mypy]
 exclude = "^tests/"
+
+[dependency-groups]
+dev = [
+    "nest-asyncio>=1.6.0",
+    "pytest-asyncio>=0.25.2",
+    "pytest-cov>=6.0.0",
+    "pytest>=8.3.4",
+]
+
+[tool.ruff]
+select = ["ANN"]
+
+[tool.pytest.ini_options]
+markers = [
+    "integration: mark test as integration test"
+]
