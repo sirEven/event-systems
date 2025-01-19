@@ -21,10 +21,10 @@ async def test_two_shared_event_systems_are_identical(
 
 @pytest.mark.asyncio
 async def test_events_system_post_raises_exception_if_not_initialized_beforehand(
-    shared_event_system: SharedEventSystem,
+    uninitialized_shared_event_system: SharedEventSystem,
 ) -> None:
     # given
-    es = shared_event_system
+    es = uninitialized_shared_event_system
 
     # when & then
     with pytest.raises(RuntimeError):

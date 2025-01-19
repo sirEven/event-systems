@@ -7,12 +7,12 @@ def dummy_handler(data: Dict[str, Any]) -> None:
     print(f"{dummy_data}")
 
 
-async def async_dummy_handler(data: Dict[str, Any]) -> None:
+def dummy_handler_two(data: Dict[str, Any]) -> None:
     dummy_data = data.get("dummy_data")
     print(f"{dummy_data}")
 
 
-def dummy_handler_two(data: Dict[str, Any]) -> None:
+async def async_dummy_handler(data: Dict[str, Any]) -> None:
     dummy_data = data.get("dummy_data")
     print(f"{dummy_data}")
 

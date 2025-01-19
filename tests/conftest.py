@@ -31,6 +31,13 @@ async def shared_event_system() -> AsyncGenerator[SharedEventSystem, Any]:
 
 
 @pytest_asyncio.fixture
+async def uninitialized_shared_event_system() -> AsyncGenerator[SharedEventSystem, Any]:
+    es = SharedEventSystem
+    yield es
+    await es.stop()
+
+
+@pytest_asyncio.fixture
 async def internal_event_system() -> AsyncGenerator[InternalEventSystem, Any]:
     es = InternalEventSystem()
     await es.start()
