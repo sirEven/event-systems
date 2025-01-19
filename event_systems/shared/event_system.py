@@ -1,4 +1,5 @@
 import asyncio
+import contextlib
 from typing import Optional, Dict, List, Any
 
 from event_systems.base.event_system import EventSystem
@@ -6,7 +7,6 @@ from event_systems.base.handler import Handler
 
 
 # TODO: Enable async handlers as well here, same as InternalEventSystem
-# TODO: Try setting the running flag to True in start instead of init.
 
 
 class SharedEventSystem(EventSystem):
@@ -43,8 +43,10 @@ class SharedEventSystem(EventSystem):
             await cls._event_queue.join()
 
         # Cancel the task if it exists
-        if cls._task:
+        if hasattr(cls, "_task") and cls._task:
             cls._task.cancel()
+            with contextlib.suppress(asyncio.CancelledError):
+                await cls._task
 
         # Reset the Singleton state
         cls._instance = None
@@ -57,34 +59,38 @@ class SharedEventSystem(EventSystem):
         cls._running = False
 
     @classmethod
-    async def subscribe(cls, event_type: str, fn: Handler) -> None:
+    async def subscribe(cls, event_name: str, fn: Handler) -> None:
         if not cls._instance:
             await cls.initialize()
         async with cls._lock:
             if fn is not None:
-                if event_type not in cls._subscriptions:
-                    cls._subscriptions[event_type] = []
-                cls._subscriptions[event_type].append(fn)
+                if event_name not in cls._subscriptions:
+                    cls._subscriptions[event_name] = []
+                cls._subscriptions[event_name].append(fn)
 
     @classmethod
-    async def post(cls, event: str, event_data: Dict[str, Any]) -> None:
+    async def post(cls, event_name: str, event_data: Dict[str, Any]) -> None:
         """
         Posts an event to the internal event queue.
 
         Args:
-            event_type: The type of event to be posted.
-            event_data: The data to be posted with the event.
+            event_name: The name of event to be posted.
+            event_data: The data to be passed to handlers subscribed with the event.
 
         Raises:
             RuntimeError: If no subscriptions have been registered before posting or if instance is None.
         """
-        if cls._instance is None or not cls._subscriptions:
-            raise RuntimeError(
-                "At least one subscription has to be registered before posting events."
-            )
-        if event not in cls._subscriptions or not cls._subscriptions[event]:
-            raise ValueError(f"No handlers registered for event '{event}'.")
-        await cls._event_queue.put((event, event_data))
+        if cls._instance is None:
+            msg = f"{cls.__name__} must be initialized before posting events."
+            raise RuntimeError(msg)
+        if event_name not in cls._subscriptions:
+            msg = f"No subscription found with '{event_name}'."
+            raise ValueError(msg)
+        if not cls._subscriptions[event_name]:
+            msg = f"No handlers registered for event '{event_name}'."
+            raise ValueError(f"No handlers registered for event '{event_name}'.")
+
+        await cls._event_queue.put((event_name, event_data))
 
     @classmethod
     async def get_subscriptions(cls) -> Dict[str, List[Handler]]:
