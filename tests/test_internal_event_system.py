@@ -5,65 +5,17 @@ import pytest
 from event_systems.internal.event_system import InternalEventSystem
 from tests.helpers.dummy_handlers import async_dummy_handler, dummy_handler
 
-# TODO: write tests for all public methods. Not covered yet: start and stop methods.
+
+# TODO: Move eligible tests to parametrized test suite in test_event_systems (if not yet covered there - then remove).
 
 
 @pytest.mark.asyncio
-async def test_subscribe_results_in_one_subscription(
-    internal_event_system: InternalEventSystem,
-) -> None:
-    # given
-    es = internal_event_system
-    event = "some_event"
-    handler = dummy_handler
+async def test_two_internal_event_systems_are_independent() -> None:
+    # given & when
+    es_1 = InternalEventSystem()
+    es_2 = InternalEventSystem()
+    await es_1.subscribe("some_event", dummy_handler)
 
-    # when
-    await es.subscribe(event, handler)
-
-    # then
-    assert len(es._subscriptions[event]) == 1
-
-
-@pytest.mark.asyncio
-async def test_post_with_synchronous_handler_results_in_handler_call(
-    internal_event_system: InternalEventSystem,
-    capsys: pytest.CaptureFixture,
-) -> None:
-    # given
-    es = internal_event_system
-    event = "some_event"
-    handler = dummy_handler
-    await es.subscribe(event, handler)
-
-    # when
-    expected = "event_handeled"
-    await es.post(event, {"dummy_data": expected})
-    await es._event_queue.join()  # Wait for all events to be processed
-
-    # then
-    out, _ = capsys.readouterr()
-    assert out == expected + "\n"
-
-
-@pytest.mark.asyncio
-async def test_post_with_asynchronous_handler_results_in_handler_call(
-    internal_event_system: InternalEventSystem,
-    capsys: pytest.CaptureFixture,
-) -> None:
-    # given
-    es = internal_event_system
-    event = "some_event"
-    handler = async_dummy_handler
-    await es.subscribe(event, handler)
-
-    # when
-    expected = "event_handeled"
-    await es.post(event, {"dummy_data": expected})
-    await es._event_queue.join()  # Wait for all events to be processed
-
-    # then
-    out, _ = capsys.readouterr()
-    assert out == expected + "\n"
-
-
-# Continue covering it and setting up this project with uv and async -.-
+    # then different InterrnralEventSystem (instance) objects hold different subscriptions
+    assert id(es_1) != id(es_2)
+    assert len(await es_1.get_subscriptions()) != len(await es_2.get_subscriptions())

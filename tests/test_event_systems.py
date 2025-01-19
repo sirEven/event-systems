@@ -5,22 +5,20 @@ from event_systems.internal.event_system import InternalEventSystem
 from event_systems.shared.event_system import SharedEventSystem
 from tests.helpers.dummy_emitter import DummyEmitter
 from tests.helpers.dummy_handlers import (
+    async_dummy_handler,
     call_counting_dummy_handler,
     dummy_handler,
     dummy_handler_two,
 )
-from tests.helpers.dummy_subscriber import (
-    DummySubscriber_zero,
-    DummySubscriber_one,
-    DummySubscriber_two,
-)
+
 from tests.helpers.typed_fixture import get_typed_fixture
 
+# TODO: write tests for all public methods. Not covered yet: start and stop methods.
 # TODO: These tests we should actually run with parametrization for both implementations
 # TODO: Remove weird unreadable tests with emitter dummies and so on.
 # TODO: Write tests for individual types (Internal / Shared EventSystem) where coverage is not given by these tests here.
 # TODO: These old tests cover a conveniece object called EventListener, where multiple subscriptions (a dict) can be packed into one setup call - if we want to keep that, let's test this object separately.
-# TODO: instead of just instantiating into es var, fetch the fixture by type
+
 implementations = {
     "internal_event_system": InternalEventSystem,
     "shared_event_system": SharedEventSystem,
@@ -30,7 +28,7 @@ implementations = {
 # NOTE: The parametrized implementations dictionary would actually translate to a string by itself via parameetrization - however for readability we call list on its keys.
 @pytest.mark.asyncio
 @pytest.mark.parametrize("fixture_name", list(implementations.keys()))
-async def test_events_system_init_results_in_no_subscribers(
+async def test_events_system_initialization_results_in_no_subscriptions(
     request: pytest.FixtureRequest,
     fixture_name: str,
 ) -> None:
@@ -43,7 +41,7 @@ async def test_events_system_init_results_in_no_subscribers(
 
 @pytest.mark.asyncio
 @pytest.mark.parametrize("fixture_name", list(implementations.keys()))
-async def test_subscribe_results_in_one_subscriber(
+async def test_subscribe_results_in_one_subscription(
     request: pytest.FixtureRequest,
     fixture_name: str,
 ) -> None:
@@ -80,6 +78,8 @@ async def test_subscribe_twice_results_in_two_handlers_to_same_event(
 
 
 # TODO: Revisit this case, think of Exception instead (Why subscribe to an event, with no handler? That's like going to the Dentist without opening my mouth.)
+# the shared event system actually raises a runtime error during this test - which is correct but test is shitty..
+# TODO: Prevent handler being none in subscribe func.
 @pytest.mark.asyncio
 @pytest.mark.parametrize("fixture_name", list(implementations.keys()))
 async def test_post_event_without_handler_calls_no_handler(
@@ -125,12 +125,14 @@ async def test_post_one_event_with_one_handler_calls_one_handler_once(
 
 
 @pytest.mark.asyncio
+@pytest.mark.parametrize("fixture_name", list(implementations.keys()))
 async def test_post_two_different_events_with_individual_handlers_results_in_two_called_individual_handlers(
-    shared_event_system: SharedEventSystem,
+    request: pytest.FixtureRequest,
+    fixture_name: str,
     capsys: pytest.CaptureFixture,
 ) -> None:
     # given
-    es = shared_event_system
+    es = get_typed_fixture(request, fixture_name, implementations[fixture_name])
     await es.subscribe("first_event", dummy_handler)
     await es.subscribe("second_event", dummy_handler_two)
 
@@ -139,6 +141,7 @@ async def test_post_two_different_events_with_individual_handlers_results_in_two
     expected_2 = "second data"
     await es.post("first_event", {"dummy_data": expected_1})
     await es.post("second_event", {"dummy_data": expected_2})
+    await es._event_queue.join()  # Wait for all events to be processed
 
     # then
     expected = expected_1 + "\n" + expected_2 + "\n"
@@ -147,21 +150,22 @@ async def test_post_two_different_events_with_individual_handlers_results_in_two
 
 
 @pytest.mark.asyncio
-@pytest.mark.parametrize("event_system", implementations)
-async def test_create_two_objects_of_same_event_system_results_correct_object_identites(
-    event_system: EventSystem,
+@pytest.mark.parametrize("fixture_name", list(implementations.keys()))
+async def test_post_with_with_asynchronous_handler_calls_handler(
+    request: pytest.FixtureRequest,
+    fixture_name: str,
+    capsys: pytest.CaptureFixture,
 ) -> None:
-    # given & when
-    es_1 = event_system()
-    es_2 = event_system()
-    await es_1.subscribe("some_event", dummy_handler)
+    # given
+    es = get_typed_fixture(request, fixture_name, implementations[fixture_name])
 
-    # then different SharedEventSystem (singleton) objects hold same subscriptions
-    if isinstance(es_1, type(SharedEventSystem)):
-        assert id(es_1) != id(es_2)
-        assert len(es_1.get_subscriptions()) == len(es_2.get_subscriptions())
+    await es.subscribe("some_event", async_dummy_handler)
 
-    # then different InterrnralEventSystem (instance) objects hold different subscriptions
-    if isinstance(es_1, type(SharedEventSystem)):
-        assert id(es_1) != id(es_2)
-        assert len(es_1.get_subscriptions()) != len(es_2.get_subscriptions())
+    # when
+    expected = "event handeled"
+    await es.post("some_event", {"dummy_data": expected})
+    await es._event_queue.join()  # Wait for all events to be processed
+
+    # then
+    out, _ = capsys.readouterr()
+    assert out == expected + "\n"
