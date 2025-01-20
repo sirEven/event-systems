@@ -6,9 +6,6 @@ from event_systems.base.event_system import EventSystem
 from event_systems.base.handler import Handler
 
 
-# TODO: Enable async handlers as well here, same as InternalEventSystem
-
-
 class SharedEventSystem(EventSystem):
     """
     This implementation uses a singleton pattern and maintains one global dictionary
@@ -19,7 +16,7 @@ class SharedEventSystem(EventSystem):
     _lock = asyncio.Lock()
 
     _subscriptions: Dict[str, List[Handler]]
-    _event_queue: asyncio.PriorityQueue
+    _event_queue: asyncio.Queue
 
     @classmethod
     async def initialize(cls) -> None:
@@ -39,7 +36,7 @@ class SharedEventSystem(EventSystem):
     @classmethod
     async def stop(cls) -> None:
         # Wait for all items in the queue to be processed
-        if cls._event_queue:
+        if hasattr(cls, "_event_queue"):
             await cls._event_queue.join()
 
         # Cancel the task if it exists
@@ -48,7 +45,7 @@ class SharedEventSystem(EventSystem):
             with contextlib.suppress(asyncio.CancelledError):
                 await cls._task
 
-        # Reset the Singleton state
+        # Reset state
         cls._instance = None
         cls._subscriptions = {}
         if hasattr(cls, "_event_queue"):
@@ -63,10 +60,11 @@ class SharedEventSystem(EventSystem):
         if not cls._instance:
             await cls.initialize()
         async with cls._lock:
-            if fn is not None:
-                if event_name not in cls._subscriptions:
-                    cls._subscriptions[event_name] = []
-                cls._subscriptions[event_name].append(fn)
+            if fn is None:
+                raise ValueError("Handler can't be None.")
+            if event_name not in cls._subscriptions:
+                cls._subscriptions[event_name] = []
+            cls._subscriptions[event_name].append(fn)
 
     @classmethod
     async def post(cls, event_name: str, event_data: Dict[str, Any]) -> None:
@@ -86,9 +84,6 @@ class SharedEventSystem(EventSystem):
         if event_name not in cls._subscriptions:
             msg = f"No subscription found with '{event_name}'."
             raise ValueError(msg)
-        if not cls._subscriptions[event_name]:
-            msg = f"No handlers registered for event '{event_name}'."
-            raise ValueError(f"No handlers registered for event '{event_name}'.")
 
         await cls._event_queue.put((event_name, event_data))
 
@@ -107,7 +102,7 @@ class SharedEventSystem(EventSystem):
 
     @classmethod
     async def _process_events(cls) -> None:
-        while True:
+        while hasattr(cls, "_event_queue"):
             event_type, event_data = await cls._event_queue.get()
             if event_type in cls._subscriptions:
                 for handler in cls._subscriptions[event_type]:

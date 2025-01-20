@@ -1,7 +1,6 @@
 import pytest
 from event_systems.shared.event_system import SharedEventSystem
 
-from tests.helpers.dummy_emitter import DummyEmitter
 from tests.helpers.dummy_handlers import dummy_handler
 
 
@@ -20,7 +19,22 @@ async def test_two_shared_event_systems_are_identical(
 
 
 @pytest.mark.asyncio
-async def test_events_system_post_raises_exception_if_not_initialized_beforehand(
+async def test_subscribe_when_not_initialized_calls_initialize(
+    uninitialized_shared_event_system: SharedEventSystem,
+) -> None:
+    # given
+    es = uninitialized_shared_event_system
+    assert es._instance is None
+
+    # when
+    await es.subscribe("some_event", dummy_handler)
+
+    # then
+    assert es._instance is not None
+
+
+@pytest.mark.asyncio
+async def test_post_raises_exception_if_not_initialized_beforehand(
     uninitialized_shared_event_system: SharedEventSystem,
 ) -> None:
     # given

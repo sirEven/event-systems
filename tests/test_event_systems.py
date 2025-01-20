@@ -1,9 +1,7 @@
-from typing import Any, Dict
 import pytest
 from event_systems.base.event_system import EventSystem
 from event_systems.internal.event_system import InternalEventSystem
 from event_systems.shared.event_system import SharedEventSystem
-from tests.helpers.dummy_emitter import DummyEmitter
 from tests.helpers.dummy_handlers import (
     async_dummy_handler,
     call_counting_dummy_handler,
@@ -13,9 +11,7 @@ from tests.helpers.dummy_handlers import (
 
 from tests.helpers.typed_fixture import get_typed_fixture
 
-# TODO: write tests for all public methods. Not covered yet: start and stop methods.
-# TODO: These tests we should actually run with parametrization for both implementations
-# TODO: Remove weird unreadable tests with emitter dummies and so on.
+# TODO: write tests for all public methods
 # TODO: Write tests for individual types (Internal / Shared EventSystem) where coverage is not given by these tests here.
 # TODO: These old tests cover a conveniece object called EventListener, where multiple subscriptions (a dict) can be packed into one setup call - if we want to keep that, let's test this object separately.
 
@@ -77,27 +73,34 @@ async def test_subscribe_twice_results_in_two_handlers_to_same_event(
     assert len(handlers_on_test_event) == 2
 
 
-# TODO: Revisit this case, think of Exception instead (Why subscribe to an event, with no handler? That's like going to the Dentist without opening my mouth.)
+@pytest.mark.asyncio
+@pytest.mark.parametrize("fixture_name", list(implementations.keys()))
+async def test_post_subscribe_without_handler_raises_error(
+    request: pytest.FixtureRequest,
+    fixture_name: str,
+) -> None:
+    # given
+    es = get_typed_fixture(request, fixture_name, implementations[fixture_name])
+
+    # when & then
+    with pytest.raises(ValueError):
+        await es.subscribe("some_event", None)
+
+
 # the shared event system actually raises a runtime error during this test - which is correct but test is shitty..
-# TODO: Prevent handler being none in subscribe func.
+# TODO: Test handler being does raise value error
 @pytest.mark.asyncio
 @pytest.mark.parametrize("fixture_name", list(implementations.keys()))
 async def test_post_event_without_handler_calls_no_handler(
     request: pytest.FixtureRequest,
     fixture_name: str,
-    capsys: pytest.CaptureFixture,
 ) -> None:
     # given
     es = get_typed_fixture(request, fixture_name, implementations[fixture_name])
-    await es.subscribe("some_event", None)
 
     # when
-    await es.post("some_event", {"dummy_data": "some data"})
-
-    # then
-    out, _ = capsys.readouterr()
-    expected = ""
-    assert expected == out
+    with pytest.raises(ValueError):
+        await es.post("some_event", {"dummy_data": "some data"})
 
 
 @pytest.mark.asyncio
@@ -169,3 +172,43 @@ async def test_post_with_with_asynchronous_handler_calls_handler(
     # then
     out, _ = capsys.readouterr()
     assert out == expected + "\n"
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize("fixture_name", list(implementations.keys()))
+async def test_stop_results_in_clean_state(
+    request: pytest.FixtureRequest,
+    fixture_name: str,
+    capsys: pytest.CaptureFixture,
+) -> None:
+    # given
+    es = get_typed_fixture(request, fixture_name, implementations[fixture_name])
+    await es.subscribe("some_event", dummy_handler)
+
+    # when
+    await es.stop()
+
+    # then
+    assert len(await es.get_subscriptions()) == 0
+    assert es._running == False
+    assert not hasattr(es, "_task")
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize("fixture_name", list(implementations.keys()))
+async def test_stop_and_start_results_in_clean_state(
+    request: pytest.FixtureRequest,
+    fixture_name: str,
+) -> None:
+    # given
+    es = get_typed_fixture(request, fixture_name, implementations[fixture_name])
+    await es.subscribe("some_event", dummy_handler)
+    await es.stop()
+
+    # when
+    await es.start()
+
+    # then
+    assert len(await es.get_subscriptions()) == 0
+    assert es._running == True
+    assert hasattr(es, "_task")
