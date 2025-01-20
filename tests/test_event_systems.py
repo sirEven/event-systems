@@ -1,3 +1,4 @@
+from typing import Dict, Type
 import pytest
 from event_systems.base.event_system import EventSystem
 from event_systems.internal.event_system import InternalEventSystem
@@ -12,10 +13,8 @@ from tests.helpers.dummy_handlers import (
 from tests.helpers.typed_fixture import get_typed_fixture
 
 # TODO: write tests for all public methods
-# TODO: Write tests for individual types (Internal / Shared EventSystem) where coverage is not given by these tests here.
-# TODO: These old tests cover a conveniece object called EventListener, where multiple subscriptions (a dict) can be packed into one setup call - if we want to keep that, let's test this object separately.
 
-implementations = {
+implementations: Dict[str, Type[EventSystem]] = {
     "internal_event_system": InternalEventSystem,
     "shared_event_system": SharedEventSystem,
 }
@@ -29,7 +28,9 @@ async def test_events_system_initialization_results_in_no_subscriptions(
     fixture_name: str,
 ) -> None:
     # given & when
-    es = get_typed_fixture(request, fixture_name, implementations[fixture_name])
+    es: EventSystem = get_typed_fixture(
+        request, fixture_name, implementations[fixture_name]
+    )
 
     # then
     assert len(await es.get_subscriptions()) == 0
@@ -51,7 +52,6 @@ async def test_subscribe_results_in_one_subscription(
     assert len(await es.get_subscriptions()) == 1
 
 
-# TODO: Revisit this case as well, think of an Exception instead (Why have the same (===) fn be called multiple times?)
 @pytest.mark.asyncio
 @pytest.mark.parametrize("fixture_name", list(implementations.keys()))
 async def test_subscribe_twice_results_in_two_handlers_to_same_event(
@@ -67,9 +67,9 @@ async def test_subscribe_twice_results_in_two_handlers_to_same_event(
     await es.subscribe(test_event, dummy_handler)
 
     # then
-    all_registered_events_with_their_handlers = await es.get_subscriptions()
-    handlers_on_test_event = all_registered_events_with_their_handlers[test_event]
-    assert len(all_registered_events_with_their_handlers) == 1
+    all_registered_events = await es.get_subscriptions()
+    handlers_on_test_event = all_registered_events[test_event]
+    assert len(all_registered_events) == 1
     assert len(handlers_on_test_event) == 2
 
 
@@ -80,7 +80,11 @@ async def test_post_subscribe_without_handler_raises_error(
     fixture_name: str,
 ) -> None:
     # given
-    es = get_typed_fixture(request, fixture_name, implementations[fixture_name])
+    es: EventSystem | type[EventSystem] = get_typed_fixture(
+        request,
+        fixture_name,
+        implementations[fixture_name],
+    )
 
     # when & then
     with pytest.raises(ValueError):

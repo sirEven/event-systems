@@ -1,22 +1,23 @@
 import asyncio
 import contextlib
-from typing import Optional, Dict, List, Any
+from typing import Optional, Dict, List, Any, Tuple
 
 from event_systems.base.event_system import EventSystem
 from event_systems.base.handler import Handler
 
+from event_systems.common_strings import (
+    HANDLER_CANT_BE_NONE,
+    INITIALIZE_BEFORE_POST,
+    NO_SUBSCRIPTION_FOUND,
+)
+
 
 class SharedEventSystem(EventSystem):
-    """
-    This implementation uses a singleton pattern and maintains one global dictionary
-    for all objects to store their subscriptions and run their event system.
-    """
-
     _instance: Optional["SharedEventSystem"] = None
     _lock = asyncio.Lock()
 
     _subscriptions: Dict[str, List[Handler]]
-    _event_queue: asyncio.Queue
+    _event_queue: asyncio.Queue[Tuple[str, Dict[str, Any]]]
 
     @classmethod
     async def initialize(cls) -> None:
@@ -61,7 +62,7 @@ class SharedEventSystem(EventSystem):
             await cls.initialize()
         async with cls._lock:
             if fn is None:
-                raise ValueError("Handler can't be None.")
+                raise ValueError(HANDLER_CANT_BE_NONE)
             if event_name not in cls._subscriptions:
                 cls._subscriptions[event_name] = []
             cls._subscriptions[event_name].append(fn)
@@ -69,11 +70,9 @@ class SharedEventSystem(EventSystem):
     @classmethod
     async def post(cls, event_name: str, event_data: Dict[str, Any]) -> None:
         if cls._instance is None:
-            msg = f"{cls.__name__} must be initialized before posting events."
-            raise RuntimeError(msg)
+            raise RuntimeError(INITIALIZE_BEFORE_POST.format(class_name=cls.__name__))
         if event_name not in cls._subscriptions:
-            msg = f"No subscription found with '{event_name}'."
-            raise ValueError(msg)
+            raise ValueError(NO_SUBSCRIPTION_FOUND.format(event=event_name))
 
         await cls._event_queue.put((event_name, event_data))
 
