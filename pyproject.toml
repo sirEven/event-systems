@@ -36,6 +36,7 @@ omit = [
     "main.py",
     "__init__.py",
     "conftest.py",
+    "tests/helpers/*",
 ]
 
 [tool.coverage.report]

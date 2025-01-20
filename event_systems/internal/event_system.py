@@ -55,9 +55,10 @@ class InternalEventSystem(EventSystem):
     async def post(self, event_name: str, event_data: Dict[str, Any]) -> None:
         if event_name not in self._subscriptions:
             raise ValueError(f"No subscription found with '{event_name}'.")
+
         await self._event_queue.put((event_name, event_data))
 
-    async def get_subscriptions(self) -> List[Handler]:
+    async def get_subscriptions(self) -> Dict[str, List[Handler]]:
         return self._subscriptions
 
     async def _run_handler(self, handler: Handler, event_data: Dict[str, Any]) -> None:

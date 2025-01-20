@@ -87,11 +87,9 @@ async def test_post_subscribe_without_handler_raises_error(
         await es.subscribe("some_event", None)
 
 
-# the shared event system actually raises a runtime error during this test - which is correct but test is shitty..
-# TODO: Test handler being does raise value error
 @pytest.mark.asyncio
 @pytest.mark.parametrize("fixture_name", list(implementations.keys()))
-async def test_post_event_without_handler_calls_no_handler(
+async def test_post_without_subscriptions_raises_error(
     request: pytest.FixtureRequest,
     fixture_name: str,
 ) -> None:

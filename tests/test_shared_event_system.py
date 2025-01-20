@@ -34,7 +34,7 @@ async def test_subscribe_when_not_initialized_calls_initialize(
 
 
 @pytest.mark.asyncio
-async def test_post_raises_exception_if_not_initialized_beforehand(
+async def test_post_raises_exception_if_not_initialized(
     uninitialized_shared_event_system: SharedEventSystem,
 ) -> None:
     # given

@@ -68,16 +68,6 @@ class SharedEventSystem(EventSystem):
 
     @classmethod
     async def post(cls, event_name: str, event_data: Dict[str, Any]) -> None:
-        """
-        Posts an event to the internal event queue.
-
-        Args:
-            event_name: The name of event to be posted.
-            event_data: The data to be passed to handlers subscribed with the event.
-
-        Raises:
-            RuntimeError: If no subscriptions have been registered before posting or if instance is None.
-        """
         if cls._instance is None:
             msg = f"{cls.__name__} must be initialized before posting events."
             raise RuntimeError(msg)

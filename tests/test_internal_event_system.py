@@ -6,9 +6,6 @@ from event_systems.internal.event_system import InternalEventSystem
 from tests.helpers.dummy_handlers import async_dummy_handler, dummy_handler
 
 
-# TODO: Move eligible tests to parametrized test suite in test_event_systems (if not yet covered there - then remove).
-
-
 @pytest.mark.asyncio
 async def test_two_internal_event_systems_are_independent() -> None:
     # given & when
