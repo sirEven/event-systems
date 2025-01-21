@@ -12,7 +12,7 @@ from tests.helpers.dummy_handlers import (
 
 from tests.helpers.typed_fixture import get_event_system_fixture
 
-# NOTE: The parametrized implementations dictionary would actually translate to a string by itself via parameetrization - however for readability we call list on its keys.
+# NOTE: The parametrized implementations dictionary would actually translate to a string by itself via parameetrization - however, for readability we call list on its keys.
 
 implementations: Dict[str, Type[EventSystem]] = {
     "internal_event_system": InternalEventSystem,
