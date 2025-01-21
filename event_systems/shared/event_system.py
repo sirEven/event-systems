@@ -2,11 +2,11 @@ import asyncio
 import contextlib
 from typing import Optional, Dict, List, Any, Tuple
 
-from event_systems.base.event_system import EventSystemSingleton
+from event_systems.base.protocols import EventSystemSingleton
 from event_systems.base.handler import Handler
 
 from event_systems.common_strings import (
-    INITIALIZE_BEFORE_POST,
+    NEEDS_INITIALIZATION,
     NO_SUBSCRIPTION_FOUND,
 )
 
@@ -20,18 +20,11 @@ class SharedEventSystem(EventSystemSingleton):
     _event_queue: asyncio.Queue[Tuple[str, Dict[str, Any]]]
 
     @classmethod
-    async def initialize(cls) -> None:
-        if not cls._instance:
-            async with cls._lock:
-                cls._instance = cls()
-                cls._subscriptions = {}
-                cls._event_queue = asyncio.Queue()
-
-    @classmethod
     async def start(cls) -> None:
         cls._is_running = True
-        if not cls._instance:
-            await cls.initialize()
+        async with cls._lock:
+            if not cls._instance:
+                await cls._initialize()
         cls._task = asyncio.create_task(cls._run_event_loop())
 
     @classmethod
@@ -56,7 +49,8 @@ class SharedEventSystem(EventSystemSingleton):
     @classmethod
     async def subscribe(cls, event_name: str, fn: Handler) -> None:
         if not cls._instance:
-            await cls.initialize()
+            await cls._initialize()
+
         async with cls._lock:
             # if fn is None: # TODO: Check if this is ok
             #     raise ValueError(HANDLER_CANT_BE_NONE)
@@ -67,7 +61,7 @@ class SharedEventSystem(EventSystemSingleton):
     @classmethod
     async def post(cls, event_name: str, event_data: Dict[str, Any]) -> None:
         if cls._instance is None:
-            raise RuntimeError(INITIALIZE_BEFORE_POST.format(class_name=cls.__name__))
+            raise RuntimeError(NEEDS_INITIALIZATION.format(class_name=cls.__name__))
         if event_name not in cls._subscriptions:
             raise ValueError(NO_SUBSCRIPTION_FOUND.format(event=event_name))
 
@@ -77,9 +71,26 @@ class SharedEventSystem(EventSystemSingleton):
     async def get_subscriptions(cls) -> Dict[str, List[Handler]]:
         return cls._subscriptions
 
-    @property
-    def is_running(cls) -> bool:
+    @classmethod
+    async def is_running(cls) -> bool:
         return cls._is_running
+
+    @classmethod
+    async def process_all_events(cls) -> None:
+        if not hasattr(cls, "_event_queue"):
+            return
+        await cls._event_queue.join()
+
+    @classmethod
+    async def _initialize(cls) -> None:
+        if not cls._instance:
+            cls._instance = cls()
+            cls._subscriptions = {}
+            cls._event_queue = asyncio.Queue()
+
+    @classmethod
+    async def get_instance(cls) -> Optional["SharedEventSystem"]:
+        return cls._instance
 
     @classmethod
     async def _run_handler(cls, handler: Handler, event_data: Dict[str, Any]) -> None:

@@ -29,7 +29,7 @@ async def test_subscribe_when_not_initialized_calls_initialize(
     await es.subscribe("some_event", dummy_handler)
 
     # then
-    assert es._instance is not None
+    assert await es.get_instance() is not None
 
 
 @pytest.mark.asyncio

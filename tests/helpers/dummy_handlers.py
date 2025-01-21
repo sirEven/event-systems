@@ -19,6 +19,7 @@ async def async_dummy_handler(data: Dict[str, Any]) -> None:
 
 def call_counting_dummy_handler(data: Dict[str, Any]) -> None:
     count_statement = data.get("dummy_data")
+    assert count_statement
     if match := re.search(r"\d+", count_statement):
         # Extract the number and convert it to an integer
         number = int(match.group())

@@ -1,6 +1,6 @@
 from typing import Dict, Type
 import pytest
-from event_systems.base.event_system import EventSystem
+from event_systems.base.protocols import EventSystem
 from event_systems.internal.event_system import InternalEventSystem
 from event_systems.shared.event_system import SharedEventSystem
 from tests.helpers.dummy_handlers import (
@@ -71,25 +71,6 @@ async def test_subscribe_twice_results_in_two_handlers_to_same_event(
     assert len(handlers_on_test_event) == 2
 
 
-# TODO: Not needed anymore
-# @pytest.mark.asyncio
-# @pytest.mark.parametrize("fixture_name", list(implementations.keys()))
-# async def test_post_subscribe_without_handler_raises_error(
-#     request: pytest.FixtureRequest,
-#     fixture_name: str,
-# ) -> None:
-#     # given
-#     es = get_event_system_fixture(
-#         request,
-#         fixture_name,
-#         implementations[fixture_name],
-#     )
-
-#     # when & then
-#     with pytest.raises(ValueError):
-#         await es.subscribe("some_event", None)
-
-
 @pytest.mark.asyncio
 @pytest.mark.parametrize("fixture_name", list(implementations.keys()))
 async def test_post_without_subscriptions_raises_error(
@@ -109,7 +90,7 @@ async def test_post_without_subscriptions_raises_error(
 async def test_post_one_event_with_one_handler_calls_one_handler_once(
     request: pytest.FixtureRequest,
     fixture_name: str,
-    capsys: pytest.CaptureFixture,
+    capsys: pytest.CaptureFixture[str],
 ) -> None:
     # given
     es = get_event_system_fixture(request, fixture_name, implementations[fixture_name])
@@ -120,7 +101,7 @@ async def test_post_one_event_with_one_handler_calls_one_handler_once(
     count = 0
     initial = f"event handeled {count} times"
     await es.post("some_event", {"dummy_data": initial})
-    await es._event_queue.join()  # Wait for all events to be processed
+    await es.process_all_events()  # Wait for all events to be processed
 
     # then
     expected = f"event handeled {count + 1} times" + "\n"
@@ -133,7 +114,7 @@ async def test_post_one_event_with_one_handler_calls_one_handler_once(
 async def test_post_two_different_events_with_individual_handlers_results_in_two_called_individual_handlers(
     request: pytest.FixtureRequest,
     fixture_name: str,
-    capsys: pytest.CaptureFixture,
+    capsys: pytest.CaptureFixture[str],
 ) -> None:
     # given
     es = get_event_system_fixture(request, fixture_name, implementations[fixture_name])
@@ -145,7 +126,7 @@ async def test_post_two_different_events_with_individual_handlers_results_in_two
     expected_2 = "second data"
     await es.post("first_event", {"dummy_data": expected_1})
     await es.post("second_event", {"dummy_data": expected_2})
-    await es._event_queue.join()  # Wait for all events to be processed
+    await es.process_all_events()  # Wait for all events to be processed
 
     # then
     expected = expected_1 + "\n" + expected_2 + "\n"
@@ -158,7 +139,7 @@ async def test_post_two_different_events_with_individual_handlers_results_in_two
 async def test_post_with_with_asynchronous_handler_calls_handler(
     request: pytest.FixtureRequest,
     fixture_name: str,
-    capsys: pytest.CaptureFixture,
+    capsys: pytest.CaptureFixture[str],
 ) -> None:
     # given
     es = get_event_system_fixture(request, fixture_name, implementations[fixture_name])
@@ -168,7 +149,7 @@ async def test_post_with_with_asynchronous_handler_calls_handler(
     # when
     expected = "event handeled"
     await es.post("some_event", {"dummy_data": expected})
-    await es._event_queue.join()  # Wait for all events to be processed
+    await es.process_all_events()  # Wait for all events to be processed
 
     # then
     out, _ = capsys.readouterr()
@@ -190,7 +171,7 @@ async def test_stop_results_in_clean_state(
 
     # then
     assert len(await es.get_subscriptions()) == 0
-    assert es._is_running is False
+    assert await es.is_running() == False
     assert not hasattr(es, "_task")
 
 
@@ -210,5 +191,5 @@ async def test_stop_and_start_results_in_clean_state(
 
     # then
     assert len(await es.get_subscriptions()) == 0
-    assert es._is_running == True
+    assert await es.is_running() == True
     assert hasattr(es, "_task")

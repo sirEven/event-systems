@@ -2,18 +2,15 @@ import asyncio
 import contextlib
 from typing import Dict, List, Any, Tuple
 
-from event_systems.base.event_system import EventSystem
+from event_systems.base.protocols import EventSystem
 from event_systems.base.handler import Handler
 
 from event_systems.common_strings import NO_SUBSCRIPTION_FOUND
 
 
-# TODO: Move code in init to an initialize method, that we also call in start.
 class InternalEventSystem(EventSystem):
     def __init__(self) -> None:
-        self._lock = asyncio.Lock()
-        self._subscriptions: Dict[str, List[Handler]] = {}
-        self._event_queue: asyncio.Queue[Tuple[str, Dict[str, Any]]] = asyncio.Queue()
+        self._initialize()
 
     async def start(self) -> None:
         self._is_running = True
@@ -56,9 +53,19 @@ class InternalEventSystem(EventSystem):
     async def get_subscriptions(self) -> Dict[str, List[Handler]]:
         return self._subscriptions
 
-    @property
-    def is_running(self) -> bool:
+    async def is_running(self) -> bool:
         return self._is_running
+
+    async def process_all_events(self) -> None:
+        if not hasattr(self, "_event_queue"):
+            return
+        await self._event_queue.join()
+
+    def _initialize(self) -> None:
+        self._is_running = False
+        self._lock = asyncio.Lock()
+        self._subscriptions: Dict[str, List[Handler]] = {}
+        self._event_queue: asyncio.Queue[Tuple[str, Dict[str, Any]]] = asyncio.Queue()
 
     async def _run_handler(self, handler: Handler, event_data: Dict[str, Any]) -> None:
         if asyncio.iscoroutinefunction(handler):
