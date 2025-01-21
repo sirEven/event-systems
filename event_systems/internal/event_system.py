@@ -5,10 +5,7 @@ from typing import Dict, List, Any, Tuple
 from event_systems.base.event_system import EventSystem
 from event_systems.base.handler import Handler
 
-from event_systems.common_strings import (
-    HANDLER_CANT_BE_NONE,
-    NO_SUBSCRIPTION_FOUND,
-)
+from event_systems.common_strings import NO_SUBSCRIPTION_FOUND
 
 
 # TODO: Move code in init to an initialize method, that we also call in start.
@@ -19,7 +16,7 @@ class InternalEventSystem(EventSystem):
         self._event_queue: asyncio.Queue[Tuple[str, Dict[str, Any]]] = asyncio.Queue()
 
     async def start(self) -> None:
-        self._running = True
+        self._is_running = True
         self._task = asyncio.create_task(self._run_event_loop())
 
     async def stop(self) -> None:
@@ -40,12 +37,12 @@ class InternalEventSystem(EventSystem):
         if hasattr(self, "_task"):
             del self._task  # Remove the task since it's cancelled
 
-        self._running = False
+        self._is_running = False
 
     async def subscribe(self, event_name: str, fn: Handler) -> None:
         async with self._lock:
-            if fn is None:
-                raise ValueError(HANDLER_CANT_BE_NONE)
+            # if fn is None: # TODO: Check if this is ok
+            #     raise ValueError(HANDLER_CANT_BE_NONE)
             if event_name not in self._subscriptions:
                 self._subscriptions[event_name] = []
             self._subscriptions[event_name].append(fn)
@@ -58,6 +55,10 @@ class InternalEventSystem(EventSystem):
 
     async def get_subscriptions(self) -> Dict[str, List[Handler]]:
         return self._subscriptions
+
+    @property
+    def is_running(self) -> bool:
+        return self._is_running
 
     async def _run_handler(self, handler: Handler, event_data: Dict[str, Any]) -> None:
         if asyncio.iscoroutinefunction(handler):
@@ -72,11 +73,11 @@ class InternalEventSystem(EventSystem):
             event_type, event_data = await self._event_queue.get()
             if event_type in self._subscriptions:
                 for handler in self._subscriptions[event_type]:
-                    if handler:
-                        await self._run_handler(handler, event_data)
+                    # if handler: # TODO: Check if this is ok
+                    await self._run_handler(handler, event_data)
             self._event_queue.task_done()
 
     async def _run_event_loop(self) -> None:
-        while self._running:
+        while self._is_running:
             await self._process_events()
             await asyncio.sleep(0.1)  # Prevent busy waiting

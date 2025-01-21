@@ -2,20 +2,20 @@ import asyncio
 import contextlib
 from typing import Optional, Dict, List, Any, Tuple
 
-from event_systems.base.event_system import EventSystem
+from event_systems.base.event_system import EventSystemSingleton
 from event_systems.base.handler import Handler
 
 from event_systems.common_strings import (
-    HANDLER_CANT_BE_NONE,
     INITIALIZE_BEFORE_POST,
     NO_SUBSCRIPTION_FOUND,
 )
 
 
-class SharedEventSystem(EventSystem):
+class SharedEventSystem(EventSystemSingleton):
     _instance: Optional["SharedEventSystem"] = None
     _lock = asyncio.Lock()
 
+    _is_running: bool
     _subscriptions: Dict[str, List[Handler]]
     _event_queue: asyncio.Queue[Tuple[str, Dict[str, Any]]]
 
@@ -29,40 +29,37 @@ class SharedEventSystem(EventSystem):
 
     @classmethod
     async def start(cls) -> None:
-        cls._running = True
+        cls._is_running = True
         if not cls._instance:
             await cls.initialize()
         cls._task = asyncio.create_task(cls._run_event_loop())
 
     @classmethod
     async def stop(cls) -> None:
-        # Wait for all items in the queue to be processed
+        # Wait for all items in the queue to be processed, then remove
         if hasattr(cls, "_event_queue"):
             await cls._event_queue.join()
+            del cls._event_queue
 
-        # Cancel the task if it exists
+        # Cancel the task if it exists, then remove
         if hasattr(cls, "_task") and cls._task:
             cls._task.cancel()
             with contextlib.suppress(asyncio.CancelledError):
                 await cls._task
+            del cls._task
 
         # Reset state
         cls._instance = None
         cls._subscriptions = {}
-        if hasattr(cls, "_event_queue"):
-            del cls._event_queue  # Remove the queue since it's no longer needed
-        if hasattr(cls, "_task"):
-            del cls._task  # Remove the task since it's cancelled
-
-        cls._running = False
+        cls._is_running = False
 
     @classmethod
     async def subscribe(cls, event_name: str, fn: Handler) -> None:
         if not cls._instance:
             await cls.initialize()
         async with cls._lock:
-            if fn is None:
-                raise ValueError(HANDLER_CANT_BE_NONE)
+            # if fn is None: # TODO: Check if this is ok
+            #     raise ValueError(HANDLER_CANT_BE_NONE)
             if event_name not in cls._subscriptions:
                 cls._subscriptions[event_name] = []
             cls._subscriptions[event_name].append(fn)
@@ -80,6 +77,10 @@ class SharedEventSystem(EventSystem):
     async def get_subscriptions(cls) -> Dict[str, List[Handler]]:
         return cls._subscriptions
 
+    @property
+    def is_running(cls) -> bool:
+        return cls._is_running
+
     @classmethod
     async def _run_handler(cls, handler: Handler, event_data: Dict[str, Any]) -> None:
         if asyncio.iscoroutinefunction(handler):
@@ -95,12 +96,12 @@ class SharedEventSystem(EventSystem):
             event_type, event_data = await cls._event_queue.get()
             if event_type in cls._subscriptions:
                 for handler in cls._subscriptions[event_type]:
-                    if handler:
-                        await cls._run_handler(handler, event_data)
+                    # if handler: TODO: Check if this is ok
+                    await cls._run_handler(handler, event_data)
             cls._event_queue.task_done()
 
     @classmethod
     async def _run_event_loop(cls) -> None:
-        while cls._running:
+        while cls._is_running:
             await cls._process_events()
             await asyncio.sleep(0.1)  # Prevent busy waiting

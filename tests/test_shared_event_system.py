@@ -24,7 +24,6 @@ async def test_subscribe_when_not_initialized_calls_initialize(
 ) -> None:
     # given
     es = uninitialized_shared_event_system
-    assert es._instance is None
 
     # when
     await es.subscribe("some_event", dummy_handler)

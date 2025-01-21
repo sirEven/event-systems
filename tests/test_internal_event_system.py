@@ -1,9 +1,8 @@
-from typing import Any, Dict
 import pytest
 
 
 from event_systems.internal.event_system import InternalEventSystem
-from tests.helpers.dummy_handlers import async_dummy_handler, dummy_handler
+from tests.helpers.dummy_handlers import dummy_handler
 
 
 @pytest.mark.asyncio

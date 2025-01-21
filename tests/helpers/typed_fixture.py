@@ -7,11 +7,11 @@ from event_systems.shared.event_system import SharedEventSystem
 T = TypeVar("T")
 
 
-def get_typed_fixture(
+def get_event_system_fixture(
     request: pytest.FixtureRequest,
     fixture_name: str,
     fixture_type: Union[Type[T], T],
-) -> Union[T, Type[T]]:
+) -> Union[InternalEventSystem, Type[SharedEventSystem]]:
     value = request.getfixturevalue(fixture_name)
 
     if fixture_type is InternalEventSystem:
