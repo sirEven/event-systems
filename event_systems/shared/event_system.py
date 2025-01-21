@@ -52,8 +52,6 @@ class SharedEventSystem(EventSystemSingleton):
             await cls._initialize()
 
         async with cls._lock:
-            # if fn is None: # TODO: Check if this is ok
-            #     raise ValueError(HANDLER_CANT_BE_NONE)
             if event_name not in cls._subscriptions:
                 cls._subscriptions[event_name] = []
             cls._subscriptions[event_name].append(fn)

@@ -3,8 +3,7 @@ from typing import Optional, Protocol, Any, List, Dict, runtime_checkable
 from event_systems.base.handler import Handler
 
 
-# TODO: Have all public methods in here
-# TODO: Find solution for Protocol not being able to be implemented via class methods and normal methods at the same time
+# NOTE: Maybe at some point python will allow to merge these into EventSystem again. As of now, self/cls params will anger the type checkers.
 
 
 @runtime_checkable

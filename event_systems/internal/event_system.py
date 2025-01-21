@@ -38,8 +38,6 @@ class InternalEventSystem(EventSystem):
 
     async def subscribe(self, event_name: str, fn: Handler) -> None:
         async with self._lock:
-            # if fn is None: # TODO: Check if this is ok
-            #     raise ValueError(HANDLER_CANT_BE_NONE)
             if event_name not in self._subscriptions:
                 self._subscriptions[event_name] = []
             self._subscriptions[event_name].append(fn)
@@ -80,7 +78,6 @@ class InternalEventSystem(EventSystem):
             event_type, event_data = await self._event_queue.get()
             if event_type in self._subscriptions:
                 for handler in self._subscriptions[event_type]:
-                    # if handler: # TODO: Check if this is ok
                     await self._run_handler(handler, event_data)
             self._event_queue.task_done()
 

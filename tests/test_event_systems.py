@@ -12,7 +12,7 @@ from tests.helpers.dummy_handlers import (
 
 from tests.helpers.typed_fixture import get_event_system_fixture
 
-# TODO: write tests for all public methods
+# NOTE: The parametrized implementations dictionary would actually translate to a string by itself via parameetrization - however for readability we call list on its keys.
 
 implementations: Dict[str, Type[EventSystem]] = {
     "internal_event_system": InternalEventSystem,
@@ -20,7 +20,6 @@ implementations: Dict[str, Type[EventSystem]] = {
 }
 
 
-# NOTE: The parametrized implementations dictionary would actually translate to a string by itself via parameetrization - however for readability we call list on its keys.
 @pytest.mark.asyncio
 @pytest.mark.parametrize("fixture_name", list(implementations.keys()))
 async def test_events_system_initialization_results_in_no_subscriptions(
