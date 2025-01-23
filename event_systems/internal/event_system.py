@@ -7,16 +7,27 @@ from event_systems.base.handler import Handler
 
 from event_systems.common_strings import NO_SUBSCRIPTION_FOUND
 
-# TODO: Introduce param that allows us to pass a custom asyncio loop.
+# TODO: Introduce param that allows us to pass a custom asyncio loop. /done
+# TODO: Ensure that this loop is not in the context of the main loop
 
 
 class InternalEventSystem(EventSystem):
-    def __init__(self) -> None:
-        self._initialize()
+    def __init__(self, asyncio_loop: asyncio.AbstractEventLoop | None = None) -> None:
+        self._initialize(asyncio_loop)
+
+    def _initialize(self, asyncio_loop: asyncio.AbstractEventLoop | None) -> None:
+        self._is_running = False
+        self._lock = asyncio.Lock()
+        self._asyncio_loop = (
+            asyncio_loop if asyncio_loop is not None else asyncio.get_event_loop()
+        )
+        self._subscriptions: Dict[str, List[Handler]] = {}
+        self._event_queue: asyncio.Queue[Tuple[str, Dict[str, Any]]] = asyncio.Queue()
 
     async def start(self) -> None:
+        # TODO: Check if self is initialized correctly (having asyncio_loop and other stuff)
         self._is_running = True
-        self._task = asyncio.create_task(self._run_event_loop())
+        self._task = self._asyncio_loop.create_task(self._run_event_loop())
 
     async def stop(self) -> None:
         # Wait for all items in the queue to be processed
@@ -60,12 +71,6 @@ class InternalEventSystem(EventSystem):
         if not hasattr(self, "_event_queue"):
             return
         await self._event_queue.join()
-
-    def _initialize(self) -> None:
-        self._is_running = False
-        self._lock = asyncio.Lock()
-        self._subscriptions: Dict[str, List[Handler]] = {}
-        self._event_queue: asyncio.Queue[Tuple[str, Dict[str, Any]]] = asyncio.Queue()
 
     async def _run_handler(self, handler: Handler, event_data: Dict[str, Any]) -> None:
         if asyncio.iscoroutinefunction(handler):
