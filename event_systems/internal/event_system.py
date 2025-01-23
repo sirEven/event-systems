@@ -7,6 +7,8 @@ from event_systems.base.handler import Handler
 
 from event_systems.common_strings import NO_SUBSCRIPTION_FOUND
 
+# TODO: Introduce param that allows us to pass a custom asyncio loop.
+
 
 class InternalEventSystem(EventSystem):
     def __init__(self) -> None:
