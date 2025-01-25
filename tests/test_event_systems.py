@@ -198,22 +198,15 @@ async def test_stop_and_start_results_in_clean_state(
 @pytest.mark.asyncio
 async def test_custom_loop_has_no_issues_WIP() -> None:
     # given
-    # given
     custom_loop = asyncio.new_event_loop()
-    try:
-        es = InternalEventSystem(asyncio_loop=custom_loop)
-        await es.subscribe("some_event", dummy_handler)
-        await es.start()
+    es = InternalEventSystem(asyncio_loop=custom_loop)
+    await es.subscribe("some_event", dummy_handler)
+    await es.start()
 
-        # when
-        await es.stop()
+    # when
+    await es.stop()
 
-        # then
-        assert len(await es.get_subscriptions()) == 0
-        assert await es.is_running() == False
-        assert not hasattr(es, "_task")
-    finally:
-        custom_loop.close()  # Ensure to close the custom loop after use
-        asyncio.set_event_loop(
-            asyncio.get_event_loop()
-        )  # Reset to the default loop for pytest
+    # then
+    assert len(await es.get_subscriptions()) == 0
+    assert await es.is_running() == False
+    assert not hasattr(es, "_task")

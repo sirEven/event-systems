@@ -7,7 +7,12 @@ from event_systems.base.handler import Handler
 from event_systems.common_strings import NO_SUBSCRIPTION_FOUND
 
 # TODO: Introduce param that allows us to pass a custom asyncio loop. /done
-# FIXME: Custom Loop not working. It leads to infinite loop. it seems we are not cleanly operating on the custom loop when one provided.
+# TODO: Before continuing, straighten out the state reset:
+#       1) decide what we want: Reset such that it is reusable or shut down to release resources.
+#       2) Adapt accordingly in stop() or introduce deinitialize method
+#       3) Adapt tests.
+#       4) Add tests for custom loop shenaningans and finally adapt all changes in ShareEventSystem and parametrize tests
+#       5) Reconsider running loop on separate thread...(just a thought from grok)
 
 
 class InternalEventSystem(EventSystem):
