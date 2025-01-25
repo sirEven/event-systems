@@ -1,5 +1,4 @@
 import asyncio
-import contextlib
 from typing import Dict, List, Any, Tuple
 
 from event_systems.base.protocols import EventSystem
@@ -8,7 +7,7 @@ from event_systems.base.handler import Handler
 from event_systems.common_strings import NO_SUBSCRIPTION_FOUND
 
 # TODO: Introduce param that allows us to pass a custom asyncio loop. /done
-# TODO: Ensure that this loop is not in the context of the main loop
+# FIXME: Custom Loop not working. It leads to infinite loop. it seems we are not cleanly operating on the custom loop when one provided.
 
 
 class InternalEventSystem(EventSystem):
@@ -30,15 +29,21 @@ class InternalEventSystem(EventSystem):
         self._task = self._asyncio_loop.create_task(self._run_event_loop())
 
     async def stop(self) -> None:
-        # Wait for all items in the queue to be processed
+        self._is_running = False
         if hasattr(self, "_event_queue"):
-            await self._event_queue.join()
+            self._asyncio_loop.run_until_complete(self._event_queue.join())
 
-        # Cancel any remaining tasks if needed
         if hasattr(self, "_task"):
             self._task.cancel()
-            with contextlib.suppress(asyncio.CancelledError):
-                await self._task
+            try:
+                # Run wait_for in the context of the custom loop but don't await the result
+                self._asyncio_loop.run_until_complete(
+                    asyncio.wait_for(self._task, timeout=1.0)
+                )
+            except asyncio.CancelledError:
+                pass  # Task was successfully cancelled
+            except asyncio.TimeoutError:
+                pass
 
         # Reset state
         self._subscriptions = {}
@@ -46,8 +51,6 @@ class InternalEventSystem(EventSystem):
             del self._event_queue  # Remove the queue since it's no longer needed
         if hasattr(self, "_task"):
             del self._task  # Remove the task since it's cancelled
-
-        self._is_running = False
 
     async def subscribe(self, event_name: str, fn: Handler) -> None:
         async with self._lock:
