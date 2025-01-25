@@ -18,9 +18,8 @@ async def test_two_internal_event_systems_are_independent() -> None:
     assert len(await es_1.get_subscriptions()) != len(await es_2.get_subscriptions())
 
 
-# TODO: Cover much more crazy use cases with loop shenanigans
 @pytest.mark.asyncio
-async def test_custom_loop_has_no_issues_WIP() -> None:
+async def test_custom_loop_stop_results_in_clean_state() -> None:
     # given
     custom_loop = asyncio.new_event_loop()
     es = InternalEventSystem(asyncio_loop=custom_loop)
@@ -34,3 +33,27 @@ async def test_custom_loop_has_no_issues_WIP() -> None:
     assert len(await es.get_subscriptions()) == 0
     assert await es.is_running() == False
     assert not hasattr(es, "_task")
+
+
+@pytest.mark.asyncio
+async def test_custom_loop_stop_can_be_reused() -> None:
+    # given
+    custom_loop = asyncio.new_event_loop()
+    es = InternalEventSystem(asyncio_loop=custom_loop)
+    await es.subscribe("some_event", dummy_handler)
+    await es.start()
+    await es.stop()
+
+    # when
+    await es.subscribe("some_other_event", dummy_handler)
+    await es.start()
+
+    await es.subscribe("some_different_event", dummy_handler)
+
+    # then
+    assert len(await es.get_subscriptions()) == 2
+    assert await es.is_running() == True
+    assert hasattr(es, "_task")
+
+
+# TODO: Cover much more crazy use cases with loop shenanigans

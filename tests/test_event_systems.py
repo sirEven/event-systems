@@ -1,4 +1,3 @@
-import asyncio
 from typing import Dict, Type
 import pytest
 from event_systems.base.protocols import Instanced
