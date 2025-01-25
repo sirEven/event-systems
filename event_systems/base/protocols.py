@@ -3,11 +3,8 @@ from typing import Optional, Protocol, Any, List, Dict, runtime_checkable
 from event_systems.base.handler import Handler
 
 
-# NOTE: Maybe at some point python will allow to merge these into EventSystem again. As of now, self/cls params will anger the type checkers.
-
-
 @runtime_checkable
-class EventSystem(Protocol):
+class Instanced(Protocol):
     async def start(self) -> None: ...
 
     async def stop(self) -> None: ...
@@ -23,7 +20,7 @@ class EventSystem(Protocol):
     async def is_running(self) -> bool: ...
 
 
-class EventSystemSingleton(Protocol):
+class Singleton(Protocol):
     @classmethod
     async def start(cls) -> None: ...
 

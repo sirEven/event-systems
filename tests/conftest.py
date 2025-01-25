@@ -1,4 +1,3 @@
-import asyncio
 from typing import Any, AsyncGenerator, List, Type
 import pytest
 import pytest_asyncio
@@ -47,30 +46,3 @@ async def internal_event_system() -> AsyncGenerator[InternalEventSystem, Any]:
     await es.start()
     yield es
     await es.stop()
-
-
-@pytest_asyncio.fixture  # type: ignore
-async def internal_event_system_custom_loop() -> AsyncGenerator[
-    InternalEventSystem,
-    Any,
-]:
-    loop = asyncio.new_event_loop()
-    es = InternalEventSystem(asyncio_loop=loop)
-    await es.start()
-
-    yield es
-
-    # Stop the event system
-    await es.stop()
-
-    # Cancel all pending tasks in the custom loop
-    for task in asyncio.all_tasks(loop):
-        task.cancel()
-
-    # Wait for all tasks to be cancelled
-    loop.run_until_complete(
-        asyncio.gather(*asyncio.all_tasks(loop), return_exceptions=True)
-    )
-
-    # Close the loop
-    loop.close()

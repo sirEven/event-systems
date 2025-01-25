@@ -2,7 +2,7 @@ import asyncio
 import contextlib
 from typing import Optional, Dict, List, Any, Tuple
 
-from event_systems.base.protocols import EventSystemSingleton
+from event_systems.base.protocols import Singleton
 from event_systems.base.handler import Handler
 
 from event_systems.common_strings import (
@@ -11,7 +11,7 @@ from event_systems.common_strings import (
 )
 
 
-class SharedEventSystem(EventSystemSingleton):
+class SharedEventSystem(Singleton):
     _instance: Optional["SharedEventSystem"] = None
     _lock = asyncio.Lock()
 

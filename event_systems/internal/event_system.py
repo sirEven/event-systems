@@ -1,7 +1,7 @@
 import asyncio
 from typing import Dict, List, Any, Tuple
 
-from event_systems.base.protocols import EventSystem
+from event_systems.base.protocols import Instanced
 from event_systems.base.handler import Handler
 
 from event_systems.common_strings import NO_SUBSCRIPTION_FOUND
@@ -14,12 +14,20 @@ from event_systems.common_strings import NO_SUBSCRIPTION_FOUND
 #       4) Add tests for custom loop shenaningans and finally adapt all changes in ShareEventSystem and parametrize tests
 #       5) Reconsider running loop on separate thread...(just a thought from grok)
 
+# TODO: Engineer stop() such that event system is reusable. This means, achieving a state, where it is initialized, but not started
+# - No subscriptions
+# - running is False
+# - Fresh empty queue
+# - maybe just call _initialize() in stop as well?? ✅
 
-class InternalEventSystem(EventSystem):
+
+class InternalEventSystem(Instanced):
     def __init__(self, asyncio_loop: asyncio.AbstractEventLoop | None = None) -> None:
-        self._initialize(asyncio_loop)
+        self._setup_initial_state(asyncio_loop)
 
-    def _initialize(self, asyncio_loop: asyncio.AbstractEventLoop | None) -> None:
+    def _setup_initial_state(
+        self, asyncio_loop: asyncio.AbstractEventLoop | None
+    ) -> None:
         self._is_running = False
         self._lock = asyncio.Lock()
         self._asyncio_loop = (
@@ -50,12 +58,14 @@ class InternalEventSystem(EventSystem):
             except asyncio.TimeoutError:
                 pass
 
-        # Reset state
-        self._subscriptions = {}
+        # Clean up resources
         if hasattr(self, "_event_queue"):
-            del self._event_queue  # Remove the queue since it's no longer needed
+            del self._event_queue
         if hasattr(self, "_task"):
-            del self._task  # Remove the task since it's cancelled
+            del self._task
+
+        # Reset state
+        self._setup_initial_state(self._asyncio_loop)
 
     async def subscribe(self, event_name: str, fn: Handler) -> None:
         async with self._lock:

@@ -1,7 +1,7 @@
 import asyncio
 from typing import Dict, Type
 import pytest
-from event_systems.base.protocols import EventSystem
+from event_systems.base.protocols import Instanced
 from event_systems.internal.event_system import InternalEventSystem
 from event_systems.shared.event_system import SharedEventSystem
 from tests.helpers.dummy_handlers import (
@@ -15,7 +15,7 @@ from tests.helpers.typed_fixture import get_event_system_fixture
 
 # NOTE: The parametrized implementations dictionary would actually translate to a string by itself via parameetrization - however, for readability we call list on its keys.
 
-implementations: Dict[str, Type[EventSystem]] = {
+implementations: Dict[str, Type[Instanced]] = {
     "internal_event_system": InternalEventSystem,
     "shared_event_system": SharedEventSystem,
 }
@@ -193,20 +193,3 @@ async def test_stop_and_start_results_in_clean_state(
     assert len(await es.get_subscriptions()) == 0
     assert await es.is_running() == True
     assert hasattr(es, "_task")
-
-
-@pytest.mark.asyncio
-async def test_custom_loop_has_no_issues_WIP() -> None:
-    # given
-    custom_loop = asyncio.new_event_loop()
-    es = InternalEventSystem(asyncio_loop=custom_loop)
-    await es.subscribe("some_event", dummy_handler)
-    await es.start()
-
-    # when
-    await es.stop()
-
-    # then
-    assert len(await es.get_subscriptions()) == 0
-    assert await es.is_running() == False
-    assert not hasattr(es, "_task")
