@@ -49,6 +49,7 @@ async def test_custom_loop_stop_can_be_reused() -> None:
     await es.start()
 
     await es.subscribe("some_different_event", dummy_handler)
+    # TODO: Check if post works.
 
     # then
     assert len(await es.get_subscriptions()) == 2
