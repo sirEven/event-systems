@@ -8,7 +8,8 @@ from tests.helpers.dummy_handlers import dummy_handler
 
 
 def run_in_loop(
-    coro: Coroutine[Any, Any, None], loop: asyncio.AbstractEventLoop
+    coro: Coroutine[Any, Any, None],
+    loop: asyncio.AbstractEventLoop,
 ) -> Coroutine[Any, Any, None] | None:
     """Helper function to run a coroutine in a specified loop from the test context."""
     # Since run_until_complete is meant for synchronous context, we don't await it
@@ -44,8 +45,9 @@ async def test_custom_loop_stop_results_in_clean_state() -> None:
     assert not hasattr(es, "_task")
 
 
+# TODO: Refactor and write more tests on loop behaviour
 @pytest.mark.asyncio
-async def test_custom_loop_stop_can_be_reused(
+async def test_system_with_custom_loop_can_be_reused(
     capsys: pytest.CaptureFixture[str],
 ) -> None:
     # given
@@ -79,6 +81,3 @@ async def test_custom_loop_stop_can_be_reused(
             task.cancel()
         custom_loop.run_until_complete(custom_loop.shutdown_asyncgens())
         custom_loop.close()
-
-
-# TODO: Cover much more crazy use cases with loop shenanigans

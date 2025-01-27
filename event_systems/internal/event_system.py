@@ -6,13 +6,6 @@ from event_systems.base.handler import Handler
 
 from event_systems.common_strings import NO_SUBSCRIPTION_FOUND
 
-# TODO: Introduce param that allows us to pass a custom asyncio loop. /done
-# TODO: Before continuing, straighten out the state reset:
-#       2) Adapt accordingly in stop() or introduce deinitialize method
-#       3) Adapt tests.
-#       4) Add tests for custom loop shenaningans and finally adapt all changes in ShareEventSystem and parametrize tests
-#       5) Reconsider running loop on separate thread...(it was initially just a thought from grok)
-
 
 class InternalEventSystem(Instanced):
     def __init__(self, asyncio_loop: asyncio.AbstractEventLoop | None = None) -> None:
@@ -30,7 +23,10 @@ class InternalEventSystem(Instanced):
         self._event_queue: asyncio.Queue[Tuple[str, Dict[str, Any]]] = asyncio.Queue()
 
     async def start(self) -> None:
-        # TODO: Check if self is initialized correctly (having asyncio_loop and other stuff)
+        assert self._is_running is False, "Event system is already running."
+        assert hasattr(self, "_asyncio_loop"), "Event system has no asyncio loop."
+        assert self._asyncio_loop, "Asyncio loop is None."
+
         self._is_running = True
         self._task = self._asyncio_loop.create_task(self._run_event_loop())
 
