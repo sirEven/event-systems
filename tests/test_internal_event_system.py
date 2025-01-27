@@ -10,10 +10,10 @@ from tests.helpers.dummy_handlers import dummy_handler
 def run_in_loop(
     coro: Coroutine[Any, Any, None],
     loop: asyncio.AbstractEventLoop,
-) -> Coroutine[Any, Any, None] | None:
+) -> None:
     """Helper function to run a coroutine in a specified loop from the test context."""
     # Since run_until_complete is meant for synchronous context, we don't await it
-    return loop.run_until_complete(coro)
+    loop.run_until_complete(coro)
 
 
 @pytest.mark.asyncio
