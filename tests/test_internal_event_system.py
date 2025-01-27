@@ -45,7 +45,6 @@ async def test_custom_loop_stop_results_in_clean_state() -> None:
     assert not hasattr(es, "_task")
 
 
-# TODO: Refactor and write more tests on loop behaviour
 @pytest.mark.asyncio
 async def test_system_with_custom_loop_can_be_reused(
     capsys: pytest.CaptureFixture[str],
