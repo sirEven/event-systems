@@ -81,6 +81,13 @@ class InternalEventSystem(Instanced):
     async def process_all_events(self) -> None:
         if not hasattr(self, "_event_queue"):
             return
+        # Ensure we're in the correct loop context
+        if asyncio.get_running_loop() != self._asyncio_loop:
+            raise RuntimeError(
+                "This method must be called from the same loop as the event system was initialized with."
+            )
+
+        # Since we're already in the correct loop context, we can simply await
         await self._event_queue.join()
 
     async def _run_handler(self, handler: Handler, event_data: Dict[str, Any]) -> None:
