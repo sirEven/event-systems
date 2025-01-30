@@ -33,7 +33,7 @@ class InternalEventSystem(Instanced):
     async def stop(self) -> None:
         self._is_running = False
         if hasattr(self, "_event_queue"):
-            self._asyncio_loop.run_until_complete(self._event_queue.join())
+            await self._event_queue.join()
 
         if hasattr(self, "_task"):
             self._task.cancel()
