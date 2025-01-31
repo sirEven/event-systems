@@ -12,7 +12,8 @@ class InternalEventSystem(Instanced):
         self._setup_initial_state(asyncio_loop)
 
     def _setup_initial_state(
-        self, asyncio_loop: asyncio.AbstractEventLoop | None
+        self,
+        asyncio_loop: asyncio.AbstractEventLoop | None,
     ) -> None:
         self._is_running = False
         self._lock = asyncio.Lock()
