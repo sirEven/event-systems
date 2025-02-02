@@ -80,3 +80,24 @@ async def test_system_with_custom_loop_can_be_reused(
             task.cancel()
         custom_loop.run_until_complete(custom_loop.shutdown_asyncgens())
         custom_loop.close()
+
+
+@pytest.mark.asyncio
+async def test_get_loop_returns_correct_loop() -> None:
+    # given
+    custom_loop = asyncio.new_event_loop()
+    try:
+        es = InternalEventSystem(asyncio_loop=custom_loop)
+
+        # when
+        loop = await es.get_loop()
+
+        # then
+        assert loop is custom_loop
+    finally:
+        asyncio.set_event_loop(asyncio.get_event_loop())
+        # Ensure all tasks are cancelled before closing the loop
+        for task in asyncio.all_tasks(custom_loop):
+            task.cancel()
+        custom_loop.run_until_complete(custom_loop.shutdown_asyncgens())
+        custom_loop.close()

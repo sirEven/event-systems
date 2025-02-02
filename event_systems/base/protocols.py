@@ -1,3 +1,4 @@
+import asyncio
 from typing import Optional, Protocol, Any, List, Dict, runtime_checkable
 
 from event_systems.base.handler import Handler
@@ -20,6 +21,8 @@ class Instanced(Protocol):
     async def process_all_events(self) -> None: ...
 
     async def is_running(self) -> bool: ...
+
+    async def get_loop(self) -> asyncio.AbstractEventLoop: ...
 
 
 class Singleton(Protocol):

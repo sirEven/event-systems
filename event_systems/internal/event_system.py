@@ -75,6 +75,9 @@ class InternalEventSystem(Instanced):
     async def is_running(self) -> bool:
         return self._is_running
 
+    async def get_loop(self) -> asyncio.AbstractEventLoop:
+        return self._asyncio_loop
+
     async def process_all_events(self) -> None:
         if not hasattr(self, "_event_queue"):
             return
