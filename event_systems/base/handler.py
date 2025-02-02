@@ -1,3 +1,3 @@
-from typing import Any, Callable, Coroutine
+from typing import Callable, Any, Coroutine
 
-Handler = Callable[[Any], Any] | Coroutine[Any, Any, Any]
+Handler = Callable[..., Any] | Coroutine[Any, Any, Any]
