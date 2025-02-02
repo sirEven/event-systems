@@ -1,6 +1,6 @@
 from typing import Dict, Type
 import pytest
-from event_systems.base.protocols import Instanced
+from event_systems.base.protocols import Instanced, Singleton
 from event_systems.internal.event_system import InternalEventSystem
 from event_systems.shared.event_system import SharedEventSystem
 from tests.helpers.dummy_handlers import (
@@ -15,7 +15,7 @@ from tests.helpers.typed_fixture import get_event_system_fixture
 # NOTE: The parametrized implementations dictionary would actually translate to a string
 #       by itself via parameetrization. However, for readability we call list on its keys.
 
-implementations: Dict[str, Type[Instanced]] = {
+implementations: Dict[str, Type[Instanced | Singleton]] = {
     "internal_event_system": InternalEventSystem,
     "shared_event_system": SharedEventSystem,
 }

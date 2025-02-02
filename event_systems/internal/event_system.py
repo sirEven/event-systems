@@ -1,5 +1,5 @@
 import asyncio
-from typing import Dict, List, Any, Tuple
+from typing import Callable, Dict, List, Any, Tuple, cast
 
 from event_systems.base.protocols import Instanced
 from event_systems.base.handler import Handler
@@ -96,7 +96,7 @@ class InternalEventSystem(Instanced):
             await handler(event_data)
         else:
             # If it's a sync function, run it in a thread
-            await asyncio.to_thread(handler, event_data)
+            await asyncio.to_thread(cast(Callable[[Any], Any], handler), event_data)
 
     async def _process_events(self) -> None:
         while hasattr(self, "_event_queue"):
