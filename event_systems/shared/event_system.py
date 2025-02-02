@@ -1,6 +1,6 @@
 import asyncio
 import contextlib
-from typing import Optional, Dict, List, Any, Tuple
+from typing import Callable, Optional, Dict, List, Any, Tuple, cast
 
 from event_systems.base.protocols import Singleton
 from event_systems.base.handler import Handler
@@ -97,7 +97,7 @@ class SharedEventSystem(Singleton):
             await handler(event_data)
         else:
             # If it's a sync function, run it in a thread
-            await asyncio.to_thread(handler, event_data)
+            await asyncio.to_thread(cast(Callable[[Any], Any], handler), event_data)
 
     @classmethod
     async def _process_events(cls) -> None:
