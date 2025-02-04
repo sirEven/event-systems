@@ -1,4 +1,4 @@
-from typing import Dict, Type
+from typing import Any, Dict, Type
 import pytest
 from event_systems.base.protocols import Instanced, Singleton
 from event_systems.internal.event_system import InternalEventSystem
@@ -32,6 +32,27 @@ async def test_events_system_initialization_results_in_no_subscriptions(
 
     # then
     assert len(await es.get_subscriptions()) == 0
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize("fixture_name", list(implementations.keys()))
+async def test_subscribe_returns_correctly(
+    request: pytest.FixtureRequest,
+    fixture_name: str,
+) -> None:
+    # given
+    es = get_event_system_fixture(request, fixture_name, implementations[fixture_name])
+
+    # when
+    event_name = "some_event"
+    result = await es.subscribe(event_name, dummy_handler)
+
+    # then
+    expected: Dict[str, Any] = {
+        "success": True,
+        "message": f"Successfully subscribed to event: {event_name}",
+    }
+    assert result == expected
 
 
 @pytest.mark.asyncio

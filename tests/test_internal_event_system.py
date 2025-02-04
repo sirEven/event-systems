@@ -90,7 +90,7 @@ async def test_get_loop_returns_correct_loop() -> None:
         es = InternalEventSystem(asyncio_loop=custom_loop)
 
         # when
-        loop = await es.get_loop()
+        loop = es.get_loop()
 
         # then
         assert loop is custom_loop

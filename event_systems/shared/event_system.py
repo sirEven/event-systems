@@ -5,9 +5,11 @@ from typing import Callable, Optional, Dict, List, Any, Tuple, cast
 from event_systems.base.protocols import Singleton
 from event_systems.base.handler import Handler
 
-from event_systems.common_strings import (
+from event_systems.common_expressions import (
     NEEDS_INITIALIZATION,
     NO_SUBSCRIPTION_FOUND,
+    subscription_success,
+    subscription_failure,
 )
 
 
@@ -47,14 +49,18 @@ class SharedEventSystem(Singleton):
         cls._is_running = False
 
     @classmethod
-    async def subscribe(cls, event_name: str, fn: Handler) -> None:
+    async def subscribe(cls, event_name: str, fn: Handler) -> Dict[str, Any]:
         if not cls._instance:
             await cls._initialize()
 
         async with cls._lock:
-            if event_name not in cls._subscriptions:
-                cls._subscriptions[event_name] = []
-            cls._subscriptions[event_name].append(fn)
+            try:
+                if event_name not in cls._subscriptions:
+                    cls._subscriptions[event_name] = []
+                cls._subscriptions[event_name].append(fn)
+                return subscription_success(event_name)
+            except Exception as e:
+                return subscription_failure(event_name, e)
 
     @classmethod
     async def post(cls, event_name: str, event_data: Dict[str, Any]) -> None:

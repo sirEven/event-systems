@@ -4,7 +4,11 @@ from typing import Callable, Dict, List, Any, Tuple, cast
 from event_systems.base.protocols import Instanced
 from event_systems.base.handler import Handler
 
-from event_systems.common_strings import NO_SUBSCRIPTION_FOUND
+from event_systems.common_expressions import (
+    NO_SUBSCRIPTION_FOUND,
+    subscription_failure,
+    subscription_success,
+)
 
 
 class InternalEventSystem(Instanced):
@@ -57,11 +61,16 @@ class InternalEventSystem(Instanced):
         # Reset state
         self._setup_initial_state(self._asyncio_loop)
 
-    async def subscribe(self, event_name: str, fn: Handler) -> None:
+    async def subscribe(self, event_name: str, fn: Handler) -> Dict[str, Any]:
         async with self._lock:
-            if event_name not in self._subscriptions:
-                self._subscriptions[event_name] = []
-            self._subscriptions[event_name].append(fn)
+            try:
+                if event_name not in self._subscriptions:
+                    self._subscriptions[event_name] = []
+                self._subscriptions[event_name].append(fn)
+
+                return subscription_success(event_name)
+            except Exception as e:
+                return subscription_failure(event_name, e)
 
     async def post(self, event_name: str, event_data: Dict[str, Any]) -> None:
         if event_name not in self._subscriptions:
@@ -75,7 +84,7 @@ class InternalEventSystem(Instanced):
     async def is_running(self) -> bool:
         return self._is_running
 
-    async def get_loop(self) -> asyncio.AbstractEventLoop:
+    def get_loop(self) -> asyncio.AbstractEventLoop:
         return self._asyncio_loop
 
     async def process_all_events(self) -> None:
