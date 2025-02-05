@@ -13,6 +13,7 @@ from event_systems.common_expressions import (
     subscription_success,
 )
 
+# TODO: Write a few more complex tests, with different event systems more complex scenarios
 
 class ThreadedInternalEventSystem(InstancedThreaded):
     def __init__(self):
