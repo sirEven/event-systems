@@ -1,8 +1,8 @@
 from typing import Any, Dict, Type
 import pytest
 from event_systems.base.protocols import Instanced, Singleton
-from event_systems.internal.event_system import InternalEventSystem
-from event_systems.shared.event_system import SharedEventSystem
+from event_systems.instanced.asyncio.event_system import InternalEventSystem
+from event_systems.singleton.asyncio.event_system import SharedEventSystem
 from tests.helpers.dummy_handlers import (
     async_dummy_handler,
     call_counting_dummy_handler,

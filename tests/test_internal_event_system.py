@@ -3,7 +3,7 @@ from typing import Any, Coroutine
 import pytest
 
 
-from event_systems.internal.event_system import InternalEventSystem
+from event_systems.instanced.asyncio.event_system import InternalEventSystem
 from tests.helpers.dummy_handlers import dummy_handler
 
 

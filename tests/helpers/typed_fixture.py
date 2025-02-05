@@ -1,8 +1,8 @@
 from typing import Type, TypeVar, Union
 import pytest
 
-from event_systems.internal.event_system import InternalEventSystem
-from event_systems.shared.event_system import SharedEventSystem
+from event_systems.instanced.asyncio.event_system import InternalEventSystem
+from event_systems.singleton.asyncio.event_system import SharedEventSystem
 
 T = TypeVar("T")
 

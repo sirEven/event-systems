@@ -1,9 +1,9 @@
 from typing import Any, AsyncGenerator, List, Type
 import pytest
 import pytest_asyncio
-from event_systems.internal.event_system import InternalEventSystem
+from event_systems.instanced.asyncio.event_system import InternalEventSystem
 
-from event_systems.shared.event_system import SharedEventSystem
+from event_systems.singleton.asyncio.event_system import SharedEventSystem
 
 import nest_asyncio  # type: ignore
 
