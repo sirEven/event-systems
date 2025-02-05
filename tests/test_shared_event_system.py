@@ -1,5 +1,5 @@
 import pytest
-from event_systems.singleton.asyncio_event_system import AsyncSharedEventSystem
+from event_systems.singleton.async_event_system import AsyncSharedEventSystem
 
 from tests.helpers.dummy_handlers import dummy_handler
 

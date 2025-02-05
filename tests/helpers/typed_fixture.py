@@ -3,7 +3,7 @@ import pytest
 
 from event_systems.instanced.async_event_system import AsyncInternalEventSystem
 from event_systems.instanced.threaded_event_system import ThreadedInternalEventSystem
-from event_systems.singleton.asyncio_event_system import AsyncSharedEventSystem
+from event_systems.singleton.async_event_system import AsyncSharedEventSystem
 
 T = TypeVar("T")
 
