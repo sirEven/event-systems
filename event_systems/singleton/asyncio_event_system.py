@@ -2,7 +2,7 @@ import asyncio
 import contextlib
 from typing import Callable, Optional, Dict, List, Any, Tuple, cast
 
-from event_systems.base.protocols import Singleton
+from event_systems.base.asyncio_protocols import Singleton
 from event_systems.base.handler import Handler
 
 from event_systems.common_expressions import (
@@ -13,8 +13,8 @@ from event_systems.common_expressions import (
 )
 
 
-class SharedEventSystem(Singleton):
-    _instance: Optional["SharedEventSystem"] = None
+class AsyncSharedEventSystem(Singleton):
+    _instance: Optional["AsyncSharedEventSystem"] = None
     _lock = asyncio.Lock()
 
     _is_running: bool
@@ -93,7 +93,7 @@ class SharedEventSystem(Singleton):
             cls._event_queue = asyncio.Queue()
 
     @classmethod
-    async def get_instance(cls) -> Optional["SharedEventSystem"]:
+    async def get_instance(cls) -> Optional["AsyncSharedEventSystem"]:
         return cls._instance
 
     @classmethod

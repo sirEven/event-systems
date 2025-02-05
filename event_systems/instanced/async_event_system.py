@@ -1,7 +1,7 @@
 import asyncio
 from typing import Callable, Dict, List, Any, Tuple, cast
 
-from event_systems.base.protocols import Instanced
+from event_systems.base.asyncio_protocols import Instanced
 from event_systems.base.handler import Handler
 
 from event_systems.common_expressions import (
@@ -11,7 +11,15 @@ from event_systems.common_expressions import (
 )
 
 
-class InternalEventSystem(Instanced):
+class AsyncInternalEventSystem(Instanced):
+    """
+    InternalEventSystem: An asyncio based, instanced event system.
+
+    ATTENTION: Custom loop mechanism is experimental and not really working.
+    This class provides an event system using asyncio for asynchronous event handling.
+    It allows subscribing to events, posting events, and managing the event loop.
+    """
+
     def __init__(self, asyncio_loop: asyncio.AbstractEventLoop | None = None) -> None:
         self._setup_initial_state(asyncio_loop)
 

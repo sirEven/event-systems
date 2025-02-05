@@ -3,7 +3,7 @@ from typing import Any, Coroutine
 import pytest
 
 
-from event_systems.instanced.asyncio.event_system import InternalEventSystem
+from event_systems.instanced.async_event_system import AsyncInternalEventSystem
 from tests.helpers.dummy_handlers import dummy_handler
 
 
@@ -19,8 +19,8 @@ def run_in_loop(
 @pytest.mark.asyncio
 async def test_two_internal_event_systems_are_independent() -> None:
     # given & when
-    es_1 = InternalEventSystem()
-    es_2 = InternalEventSystem()
+    es_1 = AsyncInternalEventSystem()
+    es_2 = AsyncInternalEventSystem()
     await es_1.subscribe("some_event", dummy_handler)
 
     # then different InterrnralEventSystem (instance) objects hold different subscriptions
@@ -32,7 +32,7 @@ async def test_two_internal_event_systems_are_independent() -> None:
 async def test_custom_loop_stop_results_in_clean_state() -> None:
     # given
     custom_loop = asyncio.new_event_loop()
-    es = InternalEventSystem(asyncio_loop=custom_loop)
+    es = AsyncInternalEventSystem(asyncio_loop=custom_loop)
     await es.subscribe("some_event", dummy_handler)
     await es.start()
 
@@ -52,7 +52,7 @@ async def test_system_with_custom_loop_can_be_reused(
     # given
     custom_loop = asyncio.new_event_loop()
     try:
-        es = InternalEventSystem(asyncio_loop=custom_loop)
+        es = AsyncInternalEventSystem(asyncio_loop=custom_loop)
         await es.subscribe("some_event", dummy_handler)
         await es.start()
         await es.stop()
@@ -87,7 +87,7 @@ async def test_get_loop_returns_correct_loop() -> None:
     # given
     custom_loop = asyncio.new_event_loop()
     try:
-        es = InternalEventSystem(asyncio_loop=custom_loop)
+        es = AsyncInternalEventSystem(asyncio_loop=custom_loop)
 
         # when
         loop = es.get_loop()

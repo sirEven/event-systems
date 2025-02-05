@@ -1,9 +1,10 @@
-from typing import Any, AsyncGenerator, List, Type
+from typing import Any, AsyncGenerator, Generator, List, Type
 import pytest
 import pytest_asyncio
-from event_systems.instanced.asyncio.event_system import InternalEventSystem
+from event_systems.instanced.async_event_system import AsyncInternalEventSystem
 
-from event_systems.singleton.asyncio.event_system import SharedEventSystem
+from event_systems.instanced.threaded_event_system import ThreadedInternalEventSystem
+from event_systems.singleton.asyncio_event_system import AsyncSharedEventSystem
 
 import nest_asyncio  # type: ignore
 
@@ -23,26 +24,33 @@ def pytest_collection_modifyitems(
 
 
 @pytest_asyncio.fixture  # type: ignore
-async def shared_event_system() -> AsyncGenerator[Type[SharedEventSystem], Any]:
-    es = SharedEventSystem
+async def async_shared_event_system() -> AsyncGenerator[Type[AsyncSharedEventSystem], Any]:
+    es = AsyncSharedEventSystem
     await es.start()
     yield es
     await es.stop()
 
 
 @pytest_asyncio.fixture  # type: ignore
-async def uninitialized_shared_event_system() -> AsyncGenerator[
-    Type[SharedEventSystem],
+async def uninitialized_async_shared_event_system() -> AsyncGenerator[
+    Type[AsyncSharedEventSystem],
     Any,
 ]:
-    es = SharedEventSystem
+    es = AsyncSharedEventSystem
     yield es
     await es.stop()
 
 
 @pytest_asyncio.fixture  # type: ignore
-async def internal_event_system() -> AsyncGenerator[InternalEventSystem, Any]:
-    es = InternalEventSystem()
+async def async_internal_event_system() -> AsyncGenerator[AsyncInternalEventSystem, Any]:
+    es = AsyncInternalEventSystem()
     await es.start()
     yield es
     await es.stop()
+
+@pytest.fixture
+def threaded_internal_event_system() -> Generator[ThreadedInternalEventSystem, None, None]:
+    es = ThreadedInternalEventSystem()
+    es.start()
+    yield es
+    es.stop()

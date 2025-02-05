@@ -1,8 +1,8 @@
 from typing import Any, Dict, Type
 import pytest
-from event_systems.base.protocols import Instanced, Singleton
-from event_systems.instanced.asyncio.event_system import InternalEventSystem
-from event_systems.singleton.asyncio.event_system import SharedEventSystem
+from event_systems.base.asyncio_protocols import Instanced, Singleton
+from event_systems.instanced.async_event_system import AsyncInternalEventSystem
+from event_systems.singleton.asyncio_event_system import AsyncSharedEventSystem
 from tests.helpers.dummy_handlers import (
     async_dummy_handler,
     call_counting_dummy_handler,
@@ -10,14 +10,14 @@ from tests.helpers.dummy_handlers import (
     dummy_handler_two,
 )
 
-from tests.helpers.typed_fixture import get_event_system_fixture
+from tests.helpers.typed_fixture import get_async_event_system_fixture
 
 # NOTE: The parametrized implementations dictionary would actually translate to a string
 #       by itself via parameetrization. However, for readability we call list on its keys.
 
 implementations: Dict[str, Type[Instanced | Singleton]] = {
-    "internal_event_system": InternalEventSystem,
-    "shared_event_system": SharedEventSystem,
+    "async_internal_event_system": AsyncInternalEventSystem,
+    "async_shared_event_system": AsyncSharedEventSystem,
 }
 
 
@@ -28,7 +28,7 @@ async def test_events_system_initialization_results_in_no_subscriptions(
     fixture_name: str,
 ) -> None:
     # given & when
-    es = get_event_system_fixture(request, fixture_name, implementations[fixture_name])
+    es = get_async_event_system_fixture(request, fixture_name, implementations[fixture_name])
 
     # then
     assert len(await es.get_subscriptions()) == 0
@@ -41,7 +41,7 @@ async def test_subscribe_returns_correctly(
     fixture_name: str,
 ) -> None:
     # given
-    es = get_event_system_fixture(request, fixture_name, implementations[fixture_name])
+    es = get_async_event_system_fixture(request, fixture_name, implementations[fixture_name])
 
     # when
     event_name = "some_event"
@@ -62,7 +62,7 @@ async def test_subscribe_results_in_one_subscription(
     fixture_name: str,
 ) -> None:
     # given
-    es = get_event_system_fixture(request, fixture_name, implementations[fixture_name])
+    es = get_async_event_system_fixture(request, fixture_name, implementations[fixture_name])
 
     # when
     await es.subscribe("some_event", dummy_handler)
@@ -78,7 +78,7 @@ async def test_subscribe_twice_results_in_two_handlers_to_same_event(
     fixture_name: str,
 ) -> None:
     # given
-    es = get_event_system_fixture(request, fixture_name, implementations[fixture_name])
+    es = get_async_event_system_fixture(request, fixture_name, implementations[fixture_name])
 
     # when
     test_event = "test_event"
@@ -99,7 +99,7 @@ async def test_post_without_subscriptions_raises_error(
     fixture_name: str,
 ) -> None:
     # given
-    es = get_event_system_fixture(request, fixture_name, implementations[fixture_name])
+    es = get_async_event_system_fixture(request, fixture_name, implementations[fixture_name])
 
     # when
     with pytest.raises(ValueError):
@@ -114,7 +114,7 @@ async def test_post_one_event_with_one_handler_calls_one_handler_once(
     capsys: pytest.CaptureFixture[str],
 ) -> None:
     # given
-    es = get_event_system_fixture(request, fixture_name, implementations[fixture_name])
+    es = get_async_event_system_fixture(request, fixture_name, implementations[fixture_name])
 
     await es.subscribe("some_event", call_counting_dummy_handler)
 
@@ -138,7 +138,7 @@ async def test_post_two_different_events_with_individual_handlers_results_in_two
     capsys: pytest.CaptureFixture[str],
 ) -> None:
     # given
-    es = get_event_system_fixture(request, fixture_name, implementations[fixture_name])
+    es = get_async_event_system_fixture(request, fixture_name, implementations[fixture_name])
     await es.subscribe("first_event", dummy_handler)
     await es.subscribe("second_event", dummy_handler_two)
 
@@ -163,7 +163,7 @@ async def test_post_with_with_asynchronous_handler_calls_handler(
     capsys: pytest.CaptureFixture[str],
 ) -> None:
     # given
-    es = get_event_system_fixture(request, fixture_name, implementations[fixture_name])
+    es = get_async_event_system_fixture(request, fixture_name, implementations[fixture_name])
 
     await es.subscribe("some_event", async_dummy_handler)
 
@@ -184,7 +184,7 @@ async def test_stop_results_in_clean_state(
     fixture_name: str,
 ) -> None:
     # given
-    es = get_event_system_fixture(request, fixture_name, implementations[fixture_name])
+    es = get_async_event_system_fixture(request, fixture_name, implementations[fixture_name])
     await es.subscribe("some_event", dummy_handler)
 
     # when
@@ -203,7 +203,7 @@ async def test_stop_and_start_results_in_clean_state(
     fixture_name: str,
 ) -> None:
     # given
-    es = get_event_system_fixture(request, fixture_name, implementations[fixture_name])
+    es = get_async_event_system_fixture(request, fixture_name, implementations[fixture_name])
     await es.subscribe("some_event", dummy_handler)
     await es.stop()
 
