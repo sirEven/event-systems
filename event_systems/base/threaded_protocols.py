@@ -1,7 +1,7 @@
 from typing import Any, Dict, List, Protocol
 from event_systems.base.handler import Handler
 
-# TODO: Find a way to separate into 4 Protocols that can be combined: Instanced, Singleton, Threaded, Async
+# TODO: Unsubscribe
 class InstancedThreaded(Protocol):
     def start(self) -> None: ...
 

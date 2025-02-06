@@ -13,7 +13,7 @@ from event_systems.common_expressions import (
     subscription_success,
 )
 
-# TODO: Unsubscribe
+
 class ThreadedInternalEventSystem(InstancedThreaded):
     instances: List[str] = []
     def __init__(self):
@@ -22,30 +22,8 @@ class ThreadedInternalEventSystem(InstancedThreaded):
         
         self._setup_initial_state()
         
-    
     def __deinit__(self):
         ThreadedInternalEventSystem.instances.remove(self._name)
-
-    def _auto_name(self) -> str:
-        if len(ThreadedInternalEventSystem.instances) == 0:
-            return f"event_system_{len(self.instances)}"
-        if reusable_name := self.find_reusable_name(ThreadedInternalEventSystem.instances):
-            return reusable_name
-        else:
-            return f"event_system_{len(self.instances)}"
-    
-    def find_reusable_name(self, instances: List[str]) -> None | str:
-        if len(instances) == 1:
-            index = int(instances[0].split("_")[-1])
-            if index != 0:
-                return "event_system_0"
-        indices = [int(name.split("_")[-1]) for name in instances]
-        for i in range(len(indices)-1):
-            if indices[i] + 1 != indices[i+1]:
-                missing_index = indices[i] + 1
-                return f"event_system_{missing_index}"
-        return None
-        
 
     def _setup_initial_state(self) -> None:
         self._is_running = False
@@ -55,7 +33,6 @@ class ThreadedInternalEventSystem(InstancedThreaded):
 
         self._futures_not_done: Set[Future[Any]] = set()
         self._futures_done: Set[Future[Any]] = set()
-
 
     # NOTE: The way we calculate worker count suggests, that starting the event system should be done after subscriptions have beend registered.
     def start(self) -> None:
@@ -111,7 +88,6 @@ class ThreadedInternalEventSystem(InstancedThreaded):
 
         return max(1, len(self._subscriptions) * avg_handlers_per_event)
 
-    
     def _run_handler(self, handler: Handler, event_data: Dict[str, Any]) -> None:
         if not callable(handler):
             raise TypeError("Handler is not callable.")
@@ -125,7 +101,6 @@ class ThreadedInternalEventSystem(InstancedThreaded):
         else:
             # For synchronous functions, call them directly in the worker thread
             handler(event_data)
-
 
     def process_all_events(self) -> None:
     # Wait for all events in the queue to be processed
@@ -150,7 +125,6 @@ class ThreadedInternalEventSystem(InstancedThreaded):
             
             # Clean up done futures
             self._cleanup_completed_futures()
-
 
     def _execution_loop(self, max_concurrent: int) -> None:
         prefix = f"{self._name}_execution"
@@ -191,3 +165,23 @@ class ThreadedInternalEventSystem(InstancedThreaded):
 
         # Remove completed futures from self._futures_done
         self._futures_done -= completed_futures_to_remove
+
+    def _auto_name(self) -> str:
+        if len(ThreadedInternalEventSystem.instances) == 0:
+            return "event_system_0"
+        if reusable_name := self.find_reusable_name(ThreadedInternalEventSystem.instances):
+            return reusable_name
+        else:
+            return f"event_system_{len(self.instances)}"
+    
+    def find_reusable_name(self, instances: List[str]) -> None | str:
+        if len(instances) == 1:
+            index = int(instances[0].split("_")[-1])
+            if index != 0:
+                return "event_system_0"
+        indices = [int(name.split("_")[-1]) for name in instances]
+        for i in range(len(indices)-1):
+            if indices[i] + 1 != indices[i+1]:
+                missing_index = indices[i] + 1
+                return f"event_system_{missing_index}"
+        return None
