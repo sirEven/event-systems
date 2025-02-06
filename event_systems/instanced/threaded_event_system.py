@@ -4,7 +4,7 @@ from concurrent.futures import ThreadPoolExecutor, Future, wait, FIRST_COMPLETED
 from typing import Dict, List, Any, Set, Tuple
 from queue import Queue
 
-from event_systems.base.threading_protocols import InstancedThreaded
+from event_systems.base.threaded_protocols import InstancedThreaded
 from event_systems.base.handler import Handler
 
 from event_systems.common_expressions import (
@@ -13,11 +13,39 @@ from event_systems.common_expressions import (
     subscription_success,
 )
 
-# TODO: Write a few more complex tests, with different event systems more complex scenarios
-
+# TODO: Unsubscribe
 class ThreadedInternalEventSystem(InstancedThreaded):
+    instances: List[str] = []
     def __init__(self):
+        self._name = self._auto_name()
+        ThreadedInternalEventSystem.instances.append(self._name)
+        
         self._setup_initial_state()
+        
+    
+    def __deinit__(self):
+        ThreadedInternalEventSystem.instances.remove(self._name)
+
+    def _auto_name(self) -> str:
+        if len(ThreadedInternalEventSystem.instances) == 0:
+            return f"event_system_{len(self.instances)}"
+        if reusable_name := self.find_reusable_name(ThreadedInternalEventSystem.instances):
+            return reusable_name
+        else:
+            return f"event_system_{len(self.instances)}"
+    
+    def find_reusable_name(self, instances: List[str]) -> None | str:
+        if len(instances) == 1:
+            index = int(instances[0].split("_")[-1])
+            if index != 0:
+                return "event_system_0"
+        indices = [int(name.split("_")[-1]) for name in instances]
+        for i in range(len(indices)-1):
+            if indices[i] + 1 != indices[i+1]:
+                missing_index = indices[i] + 1
+                return f"event_system_{missing_index}"
+        return None
+        
 
     def _setup_initial_state(self) -> None:
         self._is_running = False
@@ -33,9 +61,11 @@ class ThreadedInternalEventSystem(InstancedThreaded):
     def start(self) -> None:
         assert not self._is_running, "Event system is already running."
         self._is_running = True
-        n = "event_processing_loop"
+
         worker_count = self._calculate_worker_count()
         self._executor = ThreadPoolExecutor(max_workers=worker_count)
+
+        n = f"{self._name}"
         t = threading.Thread(
             name=n,
             target=self._execution_loop,
@@ -81,21 +111,6 @@ class ThreadedInternalEventSystem(InstancedThreaded):
 
         return max(1, len(self._subscriptions) * avg_handlers_per_event)
 
-    def _adjust_worker_count(self) -> None:
-        new_worker_count = max(1, len(self._subscriptions))
-        current_worker_count = self._executor._max_workers
-
-        if new_worker_count != current_worker_count:
-            # Creating a new executor with the new worker count
-            new_executor = ThreadPoolExecutor(max_workers=new_worker_count)
-
-            # Transfer tasks or wait for current tasks to finish before replacing the executor
-            # Here's a simple approach:
-            self._executor.shutdown(
-                wait=True
-            )  # Don't wait for completion, just stop accepting new tasks
-            self._executor = new_executor
-
     
     def _run_handler(self, handler: Handler, event_data: Dict[str, Any]) -> None:
         if not callable(handler):
@@ -126,7 +141,7 @@ class ThreadedInternalEventSystem(InstancedThreaded):
                 done, self._futures_not_done = wait(self._futures_not_done, return_when=FIRST_COMPLETED)
                 for future in done:
                     try:
-                        future.result()  # This will raise an exception if one occurred
+                        future.result()
                     except Exception as e:
                         # Log the exception or handle it appropriately
                         print(f"Exception in future: {e}")
@@ -138,7 +153,7 @@ class ThreadedInternalEventSystem(InstancedThreaded):
 
 
     def _execution_loop(self, max_concurrent: int) -> None:
-        prefix = "event_system_execution"
+        prefix = f"{self._name}_execution"
 
         with ThreadPoolExecutor(
             max_workers=max_concurrent,

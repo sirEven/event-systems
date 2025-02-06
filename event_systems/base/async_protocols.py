@@ -7,7 +7,7 @@ from event_systems.base.handler import Handler
 
 
 @runtime_checkable
-class Instanced(Protocol):
+class InstancedAsync(Protocol):
     async def start(self) -> None: ...
 
     async def stop(self) -> None: ...
@@ -25,7 +25,7 @@ class Instanced(Protocol):
     def get_loop(self) -> asyncio.AbstractEventLoop: ...
 
 
-class Singleton(Protocol):
+class SingletonAsync(Protocol):
     @classmethod
     async def start(cls) -> None: ...
 

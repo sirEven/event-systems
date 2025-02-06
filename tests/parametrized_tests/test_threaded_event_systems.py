@@ -1,8 +1,9 @@
 from typing import Any, Dict, Type
 import pytest
-from event_systems.base.threading_protocols import InstancedThreaded
+from event_systems.base.threaded_protocols import InstancedThreaded
 from event_systems.instanced.threaded_event_system import ThreadedInternalEventSystem
 from tests.helpers.dummy_handlers import (
+    async_dummy_handler,
     dummy_handler,
     call_counting_dummy_handler,
     dummy_handler_two,
@@ -13,6 +14,7 @@ from tests.helpers.typed_fixture import  get_threaded_event_system_fixture
 # NOTE: The parametrized implementations dictionary would actually translate to a string
 #       by itself via parameetrization. However, for readability we call list on its keys.
 
+# TODO: Cover case where handler is coroutine
 implementations: Dict[str, Type[InstancedThreaded]] = {
     "threaded_internal_event_system": ThreadedInternalEventSystem,
 }
@@ -152,7 +154,7 @@ def test_post_two_different_events_with_individual_handlers_results_in_two_calle
 
 
 @pytest.mark.parametrize("fixture_name", list(implementations.keys()))
-def test_post_with_with_hronous_handler_calls_handler(
+def test_post_with_synchronous_handler_calls_handler(
     request: pytest.FixtureRequest,
     fixture_name: str,
     capsys: pytest.CaptureFixture[str],
@@ -161,6 +163,26 @@ def test_post_with_with_hronous_handler_calls_handler(
     es = get_threaded_event_system_fixture(request, fixture_name, implementations[fixture_name])
 
     es.subscribe("some_event", dummy_handler)
+
+    # when
+    expected = "event handeled"
+    es.post("some_event", {"dummy_data": expected})
+    es.process_all_events()  # Wait for all events to be processed
+
+    # then
+    out, _ = capsys.readouterr()
+    assert out == expected + "\n"
+
+@pytest.mark.parametrize("fixture_name", list(implementations.keys()))
+def test_post_with_asynchronous_handler_calls_handler(
+    request: pytest.FixtureRequest,
+    fixture_name: str,
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    # given
+    es = get_threaded_event_system_fixture(request, fixture_name, implementations[fixture_name])
+
+    es.subscribe("some_event", async_dummy_handler)
 
     # when
     expected = "event handeled"
@@ -207,3 +229,4 @@ def test_stop_and_start_results_in_clean_state(
     # then
     assert len( es.get_subscriptions()) == 0
     assert  es.is_running() == True
+

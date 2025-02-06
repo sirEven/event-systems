@@ -1,6 +1,6 @@
 from typing import Any, Dict, Type
 import pytest
-from event_systems.base.asyncio_protocols import Instanced, Singleton
+from event_systems.base.async_protocols import InstancedAsync, SingletonAsync
 from event_systems.instanced.async_event_system import AsyncInternalEventSystem
 from event_systems.singleton.async_event_system import AsyncSharedEventSystem
 from tests.helpers.dummy_handlers import (
@@ -15,7 +15,7 @@ from tests.helpers.typed_fixture import get_async_event_system_fixture
 # NOTE: The parametrized implementations dictionary would actually translate to a string
 #       by itself via parameetrization. However, for readability we call list on its keys.
 
-implementations: Dict[str, Type[Instanced | Singleton]] = {
+implementations: Dict[str, Type[InstancedAsync | SingletonAsync]] = {
     "async_internal_event_system": AsyncInternalEventSystem,
     "async_shared_event_system": AsyncSharedEventSystem,
 }
