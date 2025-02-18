@@ -16,13 +16,14 @@ from event_systems.common_expressions import (
 
 class ThreadedInternalEventSystem(InstancedThreaded):
     instances: List[str] = []
-    def __init__(self):
+
+    def __init__(self) -> None:
         self._name = self._auto_name()
         ThreadedInternalEventSystem.instances.append(self._name)
-        
+
         self._setup_initial_state()
-        
-    def __deinit__(self):
+
+    def __deinit__(self) -> None:
         ThreadedInternalEventSystem.instances.remove(self._name)
 
     def _setup_initial_state(self) -> None:
@@ -40,7 +41,10 @@ class ThreadedInternalEventSystem(InstancedThreaded):
         self._is_running = True
 
         worker_count = self._calculate_worker_count()
-        self._executor = ThreadPoolExecutor(max_workers=worker_count)
+        self._executor = ThreadPoolExecutor(
+            max_workers=worker_count,
+            thread_name_prefix=f"{self._name}_execution",
+        )
 
         n = f"{self._name}"
         t = threading.Thread(
@@ -82,8 +86,7 @@ class ThreadedInternalEventSystem(InstancedThreaded):
     def _calculate_worker_count(self) -> int:
         total_handlers = sum(len(handlers) for handlers in self._subscriptions.values())
         avg_handlers_per_event = max(
-            1,
-            total_handlers // len(self._subscriptions) if self._subscriptions else 1
+            1, total_handlers // len(self._subscriptions) if self._subscriptions else 1
         )
 
         return max(1, len(self._subscriptions) * avg_handlers_per_event)
@@ -103,17 +106,19 @@ class ThreadedInternalEventSystem(InstancedThreaded):
             handler(event_data)
 
     def process_all_events(self) -> None:
-    # Wait for all events in the queue to be processed
+        # Wait for all events in the queue to be processed
         self._event_queue.join()
-        
+
         # Wait for any currently running handlers to complete
         self._wait_for_all_futures_to_complete()
 
-    def _wait_for_all_futures_to_complete(self):
+    def _wait_for_all_futures_to_complete(self) -> None:
         while self._futures_not_done or self._futures_done:
             # Process futures that are not done
             if self._futures_not_done:
-                done, self._futures_not_done = wait(self._futures_not_done, return_when=FIRST_COMPLETED)
+                done, self._futures_not_done = wait(
+                    self._futures_not_done, return_when=FIRST_COMPLETED
+                )
                 for future in done:
                     try:
                         future.result()
@@ -122,17 +127,12 @@ class ThreadedInternalEventSystem(InstancedThreaded):
                         print(f"Exception in future: {e}")
                     finally:
                         self._futures_done.add(future)
-            
+
             # Clean up done futures
             self._cleanup_completed_futures()
 
     def _execution_loop(self, max_concurrent: int) -> None:
-        prefix = f"{self._name}_execution"
-
-        with ThreadPoolExecutor(
-            max_workers=max_concurrent,
-            thread_name_prefix=prefix,
-        ) as executor:
+        with self._executor as executor:
             while self._is_running:
                 if self._event_queue.empty():
                     continue
@@ -142,8 +142,10 @@ class ThreadedInternalEventSystem(InstancedThreaded):
                 event_type, event_data = event_publication
                 if event_type in self._subscriptions:
                     for handler in self._subscriptions[event_type]:
-                        self._futures_not_done.add(executor.submit(self._run_handler, handler, event_data))
-                
+                        self._futures_not_done.add(
+                            executor.submit(self._run_handler, handler, event_data)
+                        )
+
                 self._event_queue.task_done()
                 # Once it is bigger than max concurrent, separate all done futures out of it
                 # and clean up to release memory
@@ -169,19 +171,21 @@ class ThreadedInternalEventSystem(InstancedThreaded):
     def _auto_name(self) -> str:
         if len(ThreadedInternalEventSystem.instances) == 0:
             return "event_system_0"
-        if reusable_name := self.find_reusable_name(ThreadedInternalEventSystem.instances):
+        if reusable_name := self.find_reusable_name(
+            ThreadedInternalEventSystem.instances
+        ):
             return reusable_name
         else:
             return f"event_system_{len(self.instances)}"
-    
+
     def find_reusable_name(self, instances: List[str]) -> None | str:
         if len(instances) == 1:
             index = int(instances[0].split("_")[-1])
             if index != 0:
                 return "event_system_0"
         indices = [int(name.split("_")[-1]) for name in instances]
-        for i in range(len(indices)-1):
-            if indices[i] + 1 != indices[i+1]:
+        for i in range(len(indices) - 1):
+            if indices[i] + 1 != indices[i + 1]:
                 missing_index = indices[i] + 1
                 return f"event_system_{missing_index}"
         return None
