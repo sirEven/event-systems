@@ -34,7 +34,7 @@ async def async_singleton_event_system() -> AsyncGenerator[
 
 
 @pytest_asyncio.fixture  # type: ignore
-async def uninitialized_async_shared_event_system() -> AsyncGenerator[
+async def uninitialized_async_singleton_event_system() -> AsyncGenerator[
     Type[AsyncSingletonEventSystem],
     Any,
 ]:
@@ -52,7 +52,7 @@ async def async_event_system() -> AsyncGenerator[AsyncEventSystem, Any]:
 
 
 @pytest.fixture
-def threaded_internal_event_system() -> Generator[ThreadedEventSystem, None, None]:
+def threaded_event_system() -> Generator[ThreadedEventSystem, None, None]:
     es = ThreadedEventSystem()
     es.start()
     yield es

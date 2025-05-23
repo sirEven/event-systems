@@ -20,10 +20,10 @@ async def test_two_async_shared_event_systems_are_identical(
 
 @pytest.mark.asyncio
 async def test_subscribe_when_not_initialized_calls_initialize(
-    uninitialized_async_shared_event_system: AsyncSingletonEventSystem,
+    uninitialized_async_singleton_event_system: AsyncSingletonEventSystem,
 ) -> None:
     # given
-    es = uninitialized_async_shared_event_system
+    es = uninitialized_async_singleton_event_system
 
     # when
     await es.subscribe("some_event", dummy_handler)
@@ -34,10 +34,10 @@ async def test_subscribe_when_not_initialized_calls_initialize(
 
 @pytest.mark.asyncio
 async def test_post_raises_exception_if_not_initialized(
-    uninitialized_async_shared_event_system: AsyncSingletonEventSystem,
+    uninitialized_async_singleton_event_system: AsyncSingletonEventSystem,
 ) -> None:
     # given
-    es = uninitialized_async_shared_event_system
+    es = uninitialized_async_singleton_event_system
 
     # when & then
     with pytest.raises(RuntimeError):

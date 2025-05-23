@@ -16,7 +16,7 @@ from tests.helpers.typed_fixture import get_threaded_event_system_fixture
 
 # TODO: Cover case where handler is coroutine
 implementations: Dict[str, Type[InstancedThreaded]] = {
-    "threaded_internal_event_system": ThreadedEventSystem,
+    "threaded_event_system": ThreadedEventSystem,
 }
 
 
