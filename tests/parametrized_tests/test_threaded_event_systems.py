@@ -1,7 +1,7 @@
 from typing import Any, Dict, Type
 import pytest
 from event_systems.base.threaded_protocols import InstancedThreaded
-from event_systems.instanced.threaded_event_system import ThreadedInternalEventSystem
+from event_systems.instanced.threaded_event_system import ThreadedEventSystem
 from tests.helpers.dummy_handlers import (
     async_dummy_handler,
     dummy_handler,
@@ -9,14 +9,14 @@ from tests.helpers.dummy_handlers import (
     dummy_handler_two,
 )
 
-from tests.helpers.typed_fixture import  get_threaded_event_system_fixture
+from tests.helpers.typed_fixture import get_threaded_event_system_fixture
 
 # NOTE: The parametrized implementations dictionary would actually translate to a string
 #       by itself via parameetrization. However, for readability we call list on its keys.
 
 # TODO: Cover case where handler is coroutine
 implementations: Dict[str, Type[InstancedThreaded]] = {
-    "threaded_internal_event_system": ThreadedInternalEventSystem,
+    "threaded_internal_event_system": ThreadedEventSystem,
 }
 
 
@@ -26,7 +26,9 @@ def test_events_system_initialization_results_in_no_subscriptions(
     fixture_name: str,
 ) -> None:
     # given & when
-    es = get_threaded_event_system_fixture(request, fixture_name, implementations[fixture_name])
+    es = get_threaded_event_system_fixture(
+        request, fixture_name, implementations[fixture_name]
+    )
 
     # then
     assert len(es.get_subscriptions()) == 0
@@ -38,11 +40,13 @@ def test_subscribe_returns_correctly(
     fixture_name: str,
 ) -> None:
     # given
-    es = get_threaded_event_system_fixture(request, fixture_name, implementations[fixture_name])
+    es = get_threaded_event_system_fixture(
+        request, fixture_name, implementations[fixture_name]
+    )
 
     # when
     event_name = "some_event"
-    result =  es.subscribe(event_name, dummy_handler)
+    result = es.subscribe(event_name, dummy_handler)
 
     # then
     expected: Dict[str, Any] = {
@@ -52,21 +56,21 @@ def test_subscribe_returns_correctly(
     assert result == expected
 
 
-
 @pytest.mark.parametrize("fixture_name", list(implementations.keys()))
 def test_subscribe_results_in_one_subscription(
     request: pytest.FixtureRequest,
     fixture_name: str,
 ) -> None:
     # given
-    es = get_threaded_event_system_fixture(request, fixture_name, implementations[fixture_name])
+    es = get_threaded_event_system_fixture(
+        request, fixture_name, implementations[fixture_name]
+    )
 
     # when
     es.subscribe("some_event", dummy_handler)
 
     # then
-    assert len( es.get_subscriptions()) == 1
-
+    assert len(es.get_subscriptions()) == 1
 
 
 @pytest.mark.parametrize("fixture_name", list(implementations.keys()))
@@ -75,7 +79,9 @@ def test_subscribe_twice_results_in_two_handlers_to_same_event(
     fixture_name: str,
 ) -> None:
     # given
-    es = get_threaded_event_system_fixture(request, fixture_name, implementations[fixture_name])
+    es = get_threaded_event_system_fixture(
+        request, fixture_name, implementations[fixture_name]
+    )
 
     # when
     test_event = "test_event"
@@ -83,11 +89,10 @@ def test_subscribe_twice_results_in_two_handlers_to_same_event(
     es.subscribe(test_event, dummy_handler)
 
     # then
-    all_registered_events =  es.get_subscriptions()
+    all_registered_events = es.get_subscriptions()
     handlers_on_test_event = all_registered_events[test_event]
     assert len(all_registered_events) == 1
     assert len(handlers_on_test_event) == 2
-
 
 
 @pytest.mark.parametrize("fixture_name", list(implementations.keys()))
@@ -96,12 +101,13 @@ def test_post_without_subscriptions_raises_error(
     fixture_name: str,
 ) -> None:
     # given
-    es = get_threaded_event_system_fixture(request, fixture_name, implementations[fixture_name])
+    es = get_threaded_event_system_fixture(
+        request, fixture_name, implementations[fixture_name]
+    )
 
     # when
     with pytest.raises(ValueError):
-         es.post("some_event", {"dummy_data": "some data"})
-
+        es.post("some_event", {"dummy_data": "some data"})
 
 
 @pytest.mark.parametrize("fixture_name", list(implementations.keys()))
@@ -111,7 +117,9 @@ def test_post_one_event_with_one_handler_calls_one_handler_once(
     capsys: pytest.CaptureFixture[str],
 ) -> None:
     # given
-    es = get_threaded_event_system_fixture(request, fixture_name, implementations[fixture_name])
+    es = get_threaded_event_system_fixture(
+        request, fixture_name, implementations[fixture_name]
+    )
 
     es.subscribe("some_event", call_counting_dummy_handler)
 
@@ -127,7 +135,6 @@ def test_post_one_event_with_one_handler_calls_one_handler_once(
     assert out == expected
 
 
-
 @pytest.mark.parametrize("fixture_name", list(implementations.keys()))
 def test_post_two_different_events_with_individual_handlers_results_in_two_called_individual_handlers(
     request: pytest.FixtureRequest,
@@ -135,7 +142,9 @@ def test_post_two_different_events_with_individual_handlers_results_in_two_calle
     capsys: pytest.CaptureFixture[str],
 ) -> None:
     # given
-    es = get_threaded_event_system_fixture(request, fixture_name, implementations[fixture_name])
+    es = get_threaded_event_system_fixture(
+        request, fixture_name, implementations[fixture_name]
+    )
     es.subscribe("first_event", dummy_handler)
     es.subscribe("second_event", dummy_handler_two)
 
@@ -152,7 +161,6 @@ def test_post_two_different_events_with_individual_handlers_results_in_two_calle
     assert out == expected
 
 
-
 @pytest.mark.parametrize("fixture_name", list(implementations.keys()))
 def test_post_with_synchronous_handler_calls_handler(
     request: pytest.FixtureRequest,
@@ -160,7 +168,9 @@ def test_post_with_synchronous_handler_calls_handler(
     capsys: pytest.CaptureFixture[str],
 ) -> None:
     # given
-    es = get_threaded_event_system_fixture(request, fixture_name, implementations[fixture_name])
+    es = get_threaded_event_system_fixture(
+        request, fixture_name, implementations[fixture_name]
+    )
 
     es.subscribe("some_event", dummy_handler)
 
@@ -173,6 +183,7 @@ def test_post_with_synchronous_handler_calls_handler(
     out, _ = capsys.readouterr()
     assert out == expected + "\n"
 
+
 @pytest.mark.parametrize("fixture_name", list(implementations.keys()))
 def test_post_with_asynchronous_handler_calls_handler(
     request: pytest.FixtureRequest,
@@ -180,7 +191,9 @@ def test_post_with_asynchronous_handler_calls_handler(
     capsys: pytest.CaptureFixture[str],
 ) -> None:
     # given
-    es = get_threaded_event_system_fixture(request, fixture_name, implementations[fixture_name])
+    es = get_threaded_event_system_fixture(
+        request, fixture_name, implementations[fixture_name]
+    )
 
     es.subscribe("some_event", async_dummy_handler)
 
@@ -194,23 +207,23 @@ def test_post_with_asynchronous_handler_calls_handler(
     assert out == expected + "\n"
 
 
-
 @pytest.mark.parametrize("fixture_name", list(implementations.keys()))
 def test_stop_results_in_clean_state(
     request: pytest.FixtureRequest,
     fixture_name: str,
 ) -> None:
     # given
-    es = get_threaded_event_system_fixture(request, fixture_name, implementations[fixture_name])
+    es = get_threaded_event_system_fixture(
+        request, fixture_name, implementations[fixture_name]
+    )
     es.subscribe("some_event", dummy_handler)
 
     # when
     es.stop()
 
     # then
-    assert len( es.get_subscriptions()) == 0
-    assert  es.is_running() == False
-
+    assert len(es.get_subscriptions()) == 0
+    assert es.is_running() == False
 
 
 @pytest.mark.parametrize("fixture_name", list(implementations.keys()))
@@ -219,7 +232,9 @@ def test_stop_and_start_results_in_clean_state(
     fixture_name: str,
 ) -> None:
     # given
-    es = get_threaded_event_system_fixture(request, fixture_name, implementations[fixture_name])
+    es = get_threaded_event_system_fixture(
+        request, fixture_name, implementations[fixture_name]
+    )
     es.subscribe("some_event", dummy_handler)
     es.stop()
 
@@ -227,6 +242,5 @@ def test_stop_and_start_results_in_clean_state(
     es.start()
 
     # then
-    assert len( es.get_subscriptions()) == 0
-    assert  es.is_running() == True
-
+    assert len(es.get_subscriptions()) == 0
+    assert es.is_running() == True

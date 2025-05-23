@@ -1,18 +1,20 @@
 import pytest
-from event_systems.instanced.threaded_event_system import ThreadedInternalEventSystem
+from event_systems.instanced.threaded_event_system import ThreadedEventSystem
 from tests.helpers.dummy_handlers import dummy_handler
 
 
-def test_two_instances_with_different_threads_dont_interfere(capsys: pytest.CaptureFixture[str]) -> None: 
+def test_two_instances_with_different_threads_dont_interfere(
+    capsys: pytest.CaptureFixture[str],
+) -> None:
     # given
-    es_1 = ThreadedInternalEventSystem()
-    es_2 = ThreadedInternalEventSystem()
-    
+    es_1 = ThreadedEventSystem()
+    es_2 = ThreadedEventSystem()
+
     # when
     es_1.subscribe("some_event", dummy_handler)
     es_2.subscribe("some_event", dummy_handler)
 
-    # then 
+    # then
     assert len(es_1.get_subscriptions()) == 1
     assert len(es_2.get_subscriptions()) == 1
 

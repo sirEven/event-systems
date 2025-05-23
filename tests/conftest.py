@@ -1,10 +1,10 @@
 from typing import Any, AsyncGenerator, Generator, List, Type
 import pytest
 import pytest_asyncio
-from event_systems.instanced.async_event_system import AsyncInternalEventSystem
+from event_systems.instanced.async_event_system import AsyncEventSystem
 
-from event_systems.instanced.threaded_event_system import ThreadedInternalEventSystem
-from event_systems.singleton.async_event_system import AsyncSharedEventSystem
+from event_systems.instanced.threaded_event_system import ThreadedEventSystem
+from event_systems.singleton.async_event_system import SingletonAsyncEventSystem
 
 import nest_asyncio  # type: ignore
 
@@ -24,8 +24,10 @@ def pytest_collection_modifyitems(
 
 
 @pytest_asyncio.fixture  # type: ignore
-async def async_shared_event_system() -> AsyncGenerator[Type[AsyncSharedEventSystem], Any]:
-    es = AsyncSharedEventSystem
+async def async_shared_event_system() -> AsyncGenerator[
+    Type[SingletonAsyncEventSystem], Any
+]:
+    es = SingletonAsyncEventSystem
     await es.start()
     yield es
     await es.stop()
@@ -33,24 +35,25 @@ async def async_shared_event_system() -> AsyncGenerator[Type[AsyncSharedEventSys
 
 @pytest_asyncio.fixture  # type: ignore
 async def uninitialized_async_shared_event_system() -> AsyncGenerator[
-    Type[AsyncSharedEventSystem],
+    Type[SingletonAsyncEventSystem],
     Any,
 ]:
-    es = AsyncSharedEventSystem
+    es = SingletonAsyncEventSystem
     yield es
     await es.stop()
 
 
 @pytest_asyncio.fixture  # type: ignore
-async def async_internal_event_system() -> AsyncGenerator[AsyncInternalEventSystem, Any]:
-    es = AsyncInternalEventSystem()
+async def async_internal_event_system() -> AsyncGenerator[AsyncEventSystem, Any]:
+    es = AsyncEventSystem()
     await es.start()
     yield es
     await es.stop()
 
+
 @pytest.fixture
-def threaded_internal_event_system() -> Generator[ThreadedInternalEventSystem, None, None]:
-    es = ThreadedInternalEventSystem()
+def threaded_internal_event_system() -> Generator[ThreadedEventSystem, None, None]:
+    es = ThreadedEventSystem()
     es.start()
     yield es
     es.stop()

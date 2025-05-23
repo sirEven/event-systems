@@ -11,7 +11,7 @@ from event_systems.common_expressions import (
 )
 
 
-class AsyncInternalEventSystem(InstancedAsync):
+class AsyncEventSystem(InstancedAsync):
     """
     InternalEventSystem: An asyncio based, instanced event system.
 

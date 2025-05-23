@@ -14,17 +14,17 @@ from event_systems.common_expressions import (
 )
 
 
-class ThreadedInternalEventSystem(InstancedThreaded):
+class ThreadedEventSystem(InstancedThreaded):
     instances: List[str] = []
 
     def __init__(self) -> None:
         self._name = self._auto_name()
-        ThreadedInternalEventSystem.instances.append(self._name)
+        ThreadedEventSystem.instances.append(self._name)
 
         self._setup_initial_state()
 
     def __deinit__(self) -> None:
-        ThreadedInternalEventSystem.instances.remove(self._name)
+        ThreadedEventSystem.instances.remove(self._name)
 
     def _setup_initial_state(self) -> None:
         self._is_running = False
@@ -169,11 +169,9 @@ class ThreadedInternalEventSystem(InstancedThreaded):
         self._futures_done -= completed_futures_to_remove
 
     def _auto_name(self) -> str:
-        if len(ThreadedInternalEventSystem.instances) == 0:
+        if len(ThreadedEventSystem.instances) == 0:
             return "event_system_0"
-        if reusable_name := self.find_reusable_name(
-            ThreadedInternalEventSystem.instances
-        ):
+        if reusable_name := self.find_reusable_name(ThreadedEventSystem.instances):
             return reusable_name
         else:
             return f"event_system_{len(self.instances)}"

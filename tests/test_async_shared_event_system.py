@@ -1,12 +1,12 @@
 import pytest
-from event_systems.singleton.async_event_system import AsyncSharedEventSystem
+from event_systems.singleton.async_event_system import SingletonAsyncEventSystem
 
 from tests.helpers.dummy_handlers import dummy_handler
 
 
 @pytest.mark.asyncio
 async def test_two_async_shared_event_systems_are_identical(
-    async_shared_event_system: AsyncSharedEventSystem,
+    async_shared_event_system: SingletonAsyncEventSystem,
 ) -> None:
     # given & when
     es_1 = async_shared_event_system
@@ -20,7 +20,7 @@ async def test_two_async_shared_event_systems_are_identical(
 
 @pytest.mark.asyncio
 async def test_subscribe_when_not_initialized_calls_initialize(
-    uninitialized_async_shared_event_system: AsyncSharedEventSystem,
+    uninitialized_async_shared_event_system: SingletonAsyncEventSystem,
 ) -> None:
     # given
     es = uninitialized_async_shared_event_system
@@ -34,7 +34,7 @@ async def test_subscribe_when_not_initialized_calls_initialize(
 
 @pytest.mark.asyncio
 async def test_post_raises_exception_if_not_initialized(
-    uninitialized_async_shared_event_system: AsyncSharedEventSystem,
+    uninitialized_async_shared_event_system: SingletonAsyncEventSystem,
 ) -> None:
     # given
     es = uninitialized_async_shared_event_system
