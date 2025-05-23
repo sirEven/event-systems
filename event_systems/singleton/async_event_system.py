@@ -13,8 +13,8 @@ from event_systems.common_expressions import (
 )
 
 
-class SingletonAsyncEventSystem(SingletonAsync):
-    _instance: Optional["SingletonAsyncEventSystem"] = None
+class AsyncSingletonEventSystem(SingletonAsync):
+    _instance: Optional["AsyncSingletonEventSystem"] = None
     _lock = asyncio.Lock()
 
     _is_running: bool
@@ -93,7 +93,7 @@ class SingletonAsyncEventSystem(SingletonAsync):
             cls._event_queue = asyncio.Queue()
 
     @classmethod
-    async def get_instance(cls) -> Optional["SingletonAsyncEventSystem"]:
+    async def get_instance(cls) -> Optional["AsyncSingletonEventSystem"]:
         return cls._instance
 
     @classmethod

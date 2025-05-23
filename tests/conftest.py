@@ -4,7 +4,7 @@ import pytest_asyncio
 from event_systems.instanced.async_event_system import AsyncEventSystem
 
 from event_systems.instanced.threaded_event_system import ThreadedEventSystem
-from event_systems.singleton.async_event_system import SingletonAsyncEventSystem
+from event_systems.singleton.async_event_system import AsyncSingletonEventSystem
 
 import nest_asyncio  # type: ignore
 
@@ -24,10 +24,10 @@ def pytest_collection_modifyitems(
 
 
 @pytest_asyncio.fixture  # type: ignore
-async def async_shared_event_system() -> AsyncGenerator[
-    Type[SingletonAsyncEventSystem], Any
+async def async_singleton_event_system() -> AsyncGenerator[
+    Type[AsyncSingletonEventSystem], Any
 ]:
-    es = SingletonAsyncEventSystem
+    es = AsyncSingletonEventSystem
     await es.start()
     yield es
     await es.stop()
@@ -35,16 +35,16 @@ async def async_shared_event_system() -> AsyncGenerator[
 
 @pytest_asyncio.fixture  # type: ignore
 async def uninitialized_async_shared_event_system() -> AsyncGenerator[
-    Type[SingletonAsyncEventSystem],
+    Type[AsyncSingletonEventSystem],
     Any,
 ]:
-    es = SingletonAsyncEventSystem
+    es = AsyncSingletonEventSystem
     yield es
     await es.stop()
 
 
 @pytest_asyncio.fixture  # type: ignore
-async def async_internal_event_system() -> AsyncGenerator[AsyncEventSystem, Any]:
+async def async_event_system() -> AsyncGenerator[AsyncEventSystem, Any]:
     es = AsyncEventSystem()
     await es.start()
     yield es

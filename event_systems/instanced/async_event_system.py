@@ -13,7 +13,7 @@ from event_systems.common_expressions import (
 
 class AsyncEventSystem(InstancedAsync):
     """
-    InternalEventSystem: An asyncio based, instanced event system.
+    AsyncEventSystem: An asyncio based, instanced event system.
 
     ATTENTION: Custom loop mechanism is experimental and not really working.
     This class provides an event system using asyncio for asynchronous event handling.
