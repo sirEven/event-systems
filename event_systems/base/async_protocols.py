@@ -29,6 +29,9 @@ class Async(Protocol):
 
 
 class AsyncSingleton(Protocol):
+    @property
+    def name(self) -> str | None: ...
+
     @classmethod
     async def start(cls) -> None: ...
 

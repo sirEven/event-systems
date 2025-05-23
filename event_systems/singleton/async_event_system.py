@@ -21,6 +21,16 @@ class AsyncSingletonEventSystem(AsyncSingleton):
     _subscriptions: Dict[str, List[Handler]]
     _event_queue: asyncio.Queue[Tuple[str, Dict[str, Any]]]
 
+    _name: str | None = None
+
+    @property
+    def name(self) -> str | None:
+        return self._name
+
+    @name.setter
+    def name(self, value: Optional[str]) -> str | None:
+        self._name = value
+
     @classmethod
     async def start(cls) -> None:
         cls._is_running = True
