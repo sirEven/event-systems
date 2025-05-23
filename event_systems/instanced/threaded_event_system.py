@@ -17,14 +17,15 @@ from event_systems.common_expressions import (
 class ThreadedEventSystem(Threaded):
     instances: List[str] = []
 
-    def __init__(self) -> None:
-        self._name = self._auto_name()
-        ThreadedEventSystem.instances.append(self._name)
+    def __init__(self, name: str | None = None) -> None:
+        self._name = name
+        self._id = self._auto_name()
+        ThreadedEventSystem.instances.append(self._id)
 
         self._setup_initial_state()
 
     def __deinit__(self) -> None:
-        ThreadedEventSystem.instances.remove(self._name)
+        ThreadedEventSystem.instances.remove(self._id)
 
     def _setup_initial_state(self) -> None:
         self._is_running = False
@@ -35,6 +36,9 @@ class ThreadedEventSystem(Threaded):
         self._futures_not_done: Set[Future[Any]] = set()
         self._futures_done: Set[Future[Any]] = set()
 
+    def name(self) -> str | None:
+        return self._name
+
     # NOTE: The way we calculate worker count suggests, that starting the event system should be done after subscriptions have beend registered.
     def start(self) -> None:
         assert not self._is_running, "Event system is already running."
@@ -43,10 +47,10 @@ class ThreadedEventSystem(Threaded):
         worker_count = self._calculate_worker_count()
         self._executor = ThreadPoolExecutor(
             max_workers=worker_count,
-            thread_name_prefix=f"{self._name}_execution",
+            thread_name_prefix=f"{self._id}_execution",
         )
 
-        n = f"{self._name}"
+        n = f"{self._id}"
         t = threading.Thread(
             name=n,
             target=self._execution_loop,

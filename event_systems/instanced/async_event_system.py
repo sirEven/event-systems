@@ -20,7 +20,12 @@ class AsyncEventSystem(Async):
     It allows subscribing to events, posting events, and managing the event loop.
     """
 
-    def __init__(self, asyncio_loop: asyncio.AbstractEventLoop | None = None) -> None:
+    def __init__(
+        self,
+        asyncio_loop: asyncio.AbstractEventLoop | None = None,
+        name: str | None = None,
+    ) -> None:
+        self._name = name
         self._setup_initial_state(asyncio_loop)
 
     def _setup_initial_state(
@@ -34,6 +39,9 @@ class AsyncEventSystem(Async):
         )
         self._subscriptions: Dict[str, List[Handler]] = {}
         self._event_queue: asyncio.Queue[Tuple[str, Dict[str, Any]]] = asyncio.Queue()
+
+    async def name(self) -> str | None:
+        return self._name
 
     async def start(self) -> None:
         assert self._is_running is False, "Event system is already running."
