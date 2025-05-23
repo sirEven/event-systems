@@ -6,8 +6,9 @@ from event_systems.base.handler import Handler
 # TODO: Write Documentation
 # TODO: Unsubscribe
 
+
 @runtime_checkable
-class InstancedAsync(Protocol):
+class Async(Protocol):
     async def start(self) -> None: ...
 
     async def stop(self) -> None: ...
@@ -25,7 +26,7 @@ class InstancedAsync(Protocol):
     def get_loop(self) -> asyncio.AbstractEventLoop: ...
 
 
-class SingletonAsync(Protocol):
+class AsyncSingleton(Protocol):
     @classmethod
     async def start(cls) -> None: ...
 

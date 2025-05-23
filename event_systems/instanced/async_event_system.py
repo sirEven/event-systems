@@ -1,7 +1,7 @@
 import asyncio
 from typing import Callable, Dict, List, Any, Tuple, cast
 
-from event_systems.base.async_protocols import InstancedAsync
+from event_systems.base.async_protocols import Async
 from event_systems.base.handler import Handler
 
 from event_systems.common_expressions import (
@@ -11,7 +11,7 @@ from event_systems.common_expressions import (
 )
 
 
-class AsyncEventSystem(InstancedAsync):
+class AsyncEventSystem(Async):
     """
     AsyncEventSystem: An asyncio based, instanced event system.
 

@@ -16,14 +16,14 @@ def get_async_event_system_fixture(
     value = request.getfixturevalue(fixture_name)
 
     if fixture_type is AsyncEventSystem:
-        # Assert wether value is instance of InternalEventSystem.
+        # Assert wether value is instance of AsyncEventSystem.
         assert isinstance(value, AsyncEventSystem), (
-            f"Fixture {fixture_name} is not an instance of InternalEventSystem."
+            f"Fixture {fixture_name} is not an instance of AsyncEventSystem."
         )
     elif fixture_type is AsyncSingletonEventSystem:
-        # Assert wether value of signleton type SharedEventSystem.
+        # Assert wether value of signleton is of type AsyncSingletonEventSystem.
         assert value is AsyncSingletonEventSystem, (
-            f"Fixture {fixture_name} is not a singleton class of SharedEventSystem."
+            f"Fixture {fixture_name} is not of type AsyncSingletonEventSystem."
         )
 
     else:
@@ -40,9 +40,9 @@ def get_threaded_event_system_fixture(
     value = request.getfixturevalue(fixture_name)
 
     if fixture_type is AsyncEventSystem:
-        # Assert wether value is instance of InternalEventSystem.
+        # Assert wether value is instance of ThreadedEventSystem.
         assert isinstance(value, ThreadedEventSystem), (
-            f"Fixture {fixture_name} is not an instance of InternalEventSystem."
+            f"Fixture {fixture_name} is not an instance of ThreadedEventSystem."
         )
 
     return value

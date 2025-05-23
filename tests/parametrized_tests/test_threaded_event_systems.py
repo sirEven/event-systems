@@ -1,6 +1,6 @@
 from typing import Any, Dict, Type
 import pytest
-from event_systems.base.threaded_protocols import InstancedThreaded
+from event_systems.base.threaded_protocols import Threaded
 from event_systems.instanced.threaded_event_system import ThreadedEventSystem
 from tests.helpers.dummy_handlers import (
     async_dummy_handler,
@@ -15,7 +15,7 @@ from tests.helpers.typed_fixture import get_threaded_event_system_fixture
 #       by itself via parameetrization. However, for readability we call list on its keys.
 
 # TODO: Cover case where handler is coroutine
-implementations: Dict[str, Type[InstancedThreaded]] = {
+implementations: Dict[str, Type[Threaded]] = {
     "threaded_event_system": ThreadedEventSystem,
 }
 

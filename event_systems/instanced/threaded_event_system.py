@@ -4,7 +4,7 @@ from concurrent.futures import ThreadPoolExecutor, Future, wait, FIRST_COMPLETED
 from typing import Dict, List, Any, Set, Tuple
 from queue import Queue
 
-from event_systems.base.threaded_protocols import InstancedThreaded
+from event_systems.base.threaded_protocols import Threaded
 from event_systems.base.handler import Handler
 
 from event_systems.common_expressions import (
@@ -14,7 +14,7 @@ from event_systems.common_expressions import (
 )
 
 
-class ThreadedEventSystem(InstancedThreaded):
+class ThreadedEventSystem(Threaded):
     instances: List[str] = []
 
     def __init__(self) -> None:

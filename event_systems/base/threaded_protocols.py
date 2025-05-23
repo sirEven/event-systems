@@ -1,8 +1,9 @@
 from typing import Any, Dict, List, Protocol
 from event_systems.base.handler import Handler
 
+
 # TODO: Unsubscribe
-class InstancedThreaded(Protocol):
+class Threaded(Protocol):
     def start(self) -> None: ...
 
     def stop(self) -> None: ...
